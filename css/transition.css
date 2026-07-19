@@ -1,0 +1,287 @@
+/* ==========================================
+CINEMATIC INTRO
+========================================== */
+
+#cinematicIntro{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100vh;
+    overflow:hidden;
+    z-index:9999;
+    pointer-events:none;
+    background:#081015;
+}
+
+/*==========================================
+SKY
+==========================================*/
+
+.intro-sky{
+    position:absolute;
+    inset:0;
+    background:
+            radial-gradient(circle at center,#27415b 0%,#142330 45%,#081015 100%);
+}
+
+/*==========================================
+GLOW
+==========================================*/
+
+.intro-light{
+    position:absolute;
+    left:50%;
+    bottom:-10%;
+    transform:translateX(-50%);
+    width:700px;
+    height:700px;
+    border-radius:50%;
+    background:
+            radial-gradient(circle,
+            rgba(255,233,180,.9) 0%,
+            rgba(255,220,150,.45) 20%,
+            rgba(255,255,255,.15) 45%,
+            transparent 75%);
+    filter:blur(60px);
+    opacity:0;
+}
+
+/*==========================================
+MOUNTAINS
+==========================================*/
+
+.mountain{
+    position:absolute;
+    bottom:0;
+    width:55%;
+    height:100%;
+    display:flex;
+    align-items:flex-end;
+}
+
+.mountain img{
+    width:100%;
+    user-select:none;
+    pointer-events:none;
+}
+
+.mountain-left{
+    left:-3%;
+    justify-content:flex-start;
+}
+
+.mountain-right{
+    right:-3%;
+    justify-content:flex-end;
+}
+
+/*==========================================
+BACKGROUND MOUNTAINS
+==========================================*/
+
+.mountain-bg{
+    position:absolute;
+    bottom:-5%;
+    width:55%;
+    height:55%;
+    background:linear-gradient(to top,#12212d,#31485f);
+    filter:blur(8px);
+    opacity:.35;
+}
+
+.mountain-bg-left{
+
+    clip-path:polygon(
+            0 100%,
+            20% 70%,
+            38% 30%,
+            60% 55%,
+            100% 100%
+    );
+
+    left:-5%;
+
+}
+
+.mountain-bg-right{
+
+    clip-path:polygon(
+            0 100%,
+            45% 45%,
+            65% 28%,
+            80% 55%,
+            100% 100%
+    );
+
+    right:-5%;
+
+}
+
+/*==========================================
+FOG
+==========================================*/
+
+.fog{
+    position:absolute;
+    inset:0;
+    background-repeat:no-repeat;
+    background-size:cover;
+    background-position:center;
+    opacity:.45;
+    mix-blend-mode:screen;
+    will-change:transform;
+}
+
+.fog-back-1{
+
+    background-image:url("images/fog/fog1.jpg");
+
+}
+
+.fog-back-2{
+
+    background-image:url("images/fog/fog2.jpg");
+
+}
+
+.fog-middle-1{
+
+    background-image:url("images/fog/fog3.jpg");
+
+}
+
+.fog-middle-2{
+
+    background-image:url("images/fog/fog4.png");
+
+}
+
+.fog-front-1{
+
+    background-image:url("images/fog/fog5.jpg");
+
+}
+
+.fog-front-2{
+
+    background-image:url("images/fog/fog2.jpg");
+
+}
+
+.fog-front-3{
+
+    background-image:url("images/fog/fog1.jpg");
+
+}
+
+.fog-back-1{
+
+    opacity:.18;
+
+}
+
+.fog-back-2{
+
+    opacity:.22;
+
+}
+
+.fog-middle-1{
+
+    opacity:.28;
+
+}
+
+.fog-middle-2{
+
+    opacity:.35;
+
+}
+
+.fog-front-1{
+
+    opacity:.40;
+
+}
+
+.fog-front-2{
+
+    opacity:.45;
+
+}
+
+.fog-front-3{
+
+    opacity:.50;
+
+}
+
+/*==========================================
+GLOW CENTER
+==========================================*/
+
+.center-glow{
+
+    position:absolute;
+
+    left:50%;
+
+    bottom:12%;
+
+    transform:translateX(-50%);
+
+    width:600px;
+
+    height:600px;
+
+    border-radius:50%;
+
+    background:
+
+            radial-gradient(circle,
+            rgba(255,250,220,.95),
+            rgba(255,220,140,.30),
+            transparent 75%);
+
+    filter:blur(80px);
+
+    opacity:0;
+
+}
+
+/*==========================================
+DARK VIGNETTE
+==========================================*/
+
+.intro-vignette{
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+
+            radial-gradient(circle,
+            transparent 45%,
+            rgba(0,0,0,.15) 70%,
+            rgba(0,0,0,.55) 100%);
+
+}
+
+/*==========================================
+PERFORMANCE
+==========================================*/
+
+#cinematicIntro,
+.mountain,
+.fog,
+.center-glow,
+.intro-light{
+
+    will-change:transform,opacity;
+
+    backface-visibility:hidden;
+
+    transform-style:preserve-3d;
+
+}

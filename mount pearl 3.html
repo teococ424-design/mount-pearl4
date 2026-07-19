@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html lang="ro" class="scroll-smooth"
+      x-data="{
+darkMode: localStorage.getItem('mp-dark-mode') === 'true',
+    scrolled: false,
+    navHidden: false,
+    lastScroll: 0,
+    mobileMenuOpen: false,
+    onScroll() {
+    const y = window.pageYOffset;
+    this.scrolled = y > 50;
+    this.navHidden = (y > this.lastScroll && y > 150 && !this.mobileMenuOpen);
+    this.lastScroll = y;
+},
+init() {
+    this.$watch('darkMode', value => localStorage.setItem('mp-dark-mode', value));
+    this.$watch('mobileMenuOpen', value => {
+        document.body.style.overflow = value ? 'hidden' : '';
+        if (value) this.$nextTick(() => this.$refs.mobileCloseBtn && this.$refs.mobileCloseBtn.focus());
+    });
+}
+}"
+      :class="{ 'dark': darkMode }"
+      @scroll.window.throttle.150ms="onScroll()"
+      @keydown.escape.window="mobileMenuOpen = false">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Inline theme-detector: runs before Tailwind/Alpine parse the DOM so the
+correct 'dark' class (from localStorage) is present on first paint and
+there is no flash of the wrong theme. Kept in sync with the darkMode
+value initialised in the x-data above. -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('mp-dark-mode') === 'true') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) { /* localStorage unavailable (private mode, etc.) */ }
+    })();
+  </script>
+
+  <title>Pensiunea Mountain Pearl | Confort Premium în Izvoare, Maramureș</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Refugiul tău montan de lux în Izvoare, Maramureș. Experimentează tihna, piscina interioară încălzită, spa-ul privat și bucatele noastre tradiționale.">
+  <meta name="keywords" content="Pensiunea Mountain Pearl, Mountain Pearl Maramureș, Guesthouse Maramureș, Cazare Izvoare, Mountain Resort Romania, Hotel Izvoare, Vacanta Maramures, Ignis Maramures">
+  <meta name="theme-color" content="#234032">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pensiunea Mountain Pearl | Tihnă și Ospitalitate în Maramureș">
+  <meta property="og:description" content="Piscina interioară încălzită, spa, terasă panoramică și camere elegante în Desești, Maramureș.">
+  <meta property="og:image" content="pensiune-exterior-front.jpg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- GSAP for Advanced Cinematic Animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <!-- Flatpickr (luxury range date-picker for the booking section) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/ro.min.js"></script>
+
+  <!-- Alpine.js (single instance for the whole page) -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            forest: '#234032',
+            sage: '#8DAA91',
+            beige: '#F6F1EA',
+            charcoal: '#1A1A1A',
+            gold: '#C8A96A',
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+            hand: ['Pinyon Script', 'cursive'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+
+    /* Premium custom glass effect */
+    .glass-nav {
+      background-color: rgba(35, 64, 50, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    /* Calligraphy script styling */
+    .signature-font {
+      font-family: 'Pinyon Script', cursive;
+    }
+
+    /* Cinematic sun rays animation */
+    @keyframes sun-drift {
+      0%, 100% { opacity: 0.1; transform: scale(1) translate(0px, 0px); }
+      50% { opacity: 0.25; transform: scale(1.1) translate(15px, -10px); }
+    }
+    .sun-ray {
+      animation: sun-drift 12s ease-in-out infinite;
+    }
+
+    /* Rolling mist animation */
+    @keyframes mist-drift {
+      0% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(-3%, 1%, 0); }
+      100% { transform: translate3d(0, 0, 0); }
+    }
+    .mist-layer {
+      animation: mist-drift 35s ease-in-out infinite;
+    }
+
+    /* Custom link hover effect */
+    .hover-underline-gold {
+      position: relative;
+    }
+    .hover-underline-gold::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      transform: scaleX(0);
+      height: 2px;
+      bottom: -4px;
+      left: 0;
+      background-color: #C8A96A;
+      transform-origin: bottom right;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .hover-underline-gold:hover::after {
+      transform: scaleX(1);
+      transform-origin: bottom left;
+    }
+    /* Persistent underline + colour for the active nav section */
+    .hover-underline-gold.active-link {
+      color: #C8A96A;
+    }
+    .hover-underline-gold.active-link::after {
+      transform: scaleX(1);
+      transform-origin: bottom left;
+    }
+
+    /* Animated character split classes (final state only; the actual
+    tween is driven by GSAP so there is no dueling CSS transition). */
+    .char-span {
+      display: inline-block;
+      transform: translateY(1.2em);
+      opacity: 0;
+    }
+
+    /* Custom lag cursor styling */
+    #custom-cursor {
+      mix-blend-mode: difference;
+      will-change: transform;
+    }
+
+    /* Offset anchor-scroll targets so the fixed header never covers the
+    top of a section when navigating via nav links / smooth scroll. */
+    section[id] {
+      scroll-margin-top: 110px;
+    }
+
+    /* Visible, on-brand focus ring for keyboard users (does not alter
+    the default resting appearance of any element). */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid #C8A96A;
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    /* Alpine: hide x-cloak elements until Alpine initialises */
+    [x-cloak] { display: none !important; }
+
+    /* ============ Flatpickr — Mountain Pearl luxury dark/gold theme ============ */
+    .flatpickr-calendar{
+      background:#1A1A1A; border:1px solid rgba(200,169,106,.25);
+      border-radius:.75rem; box-shadow:0 25px 60px -15px rgba(0,0,0,.8);
+      font-family:'Inter',ui-sans-serif,system-ui,sans-serif;
+    }
+    .flatpickr-calendar.arrowTop:before,.flatpickr-calendar.arrowTop:after{border-bottom-color:#1A1A1A}
+    .flatpickr-calendar.arrowBottom:before,.flatpickr-calendar.arrowBottom:after{border-top-color:#1A1A1A}
+    .flatpickr-months,.flatpickr-weekdays{background:transparent}
+    .flatpickr-months .flatpickr-month{color:#F6F1EA;fill:#F6F1EA}
+    .flatpickr-current-month .flatpickr-monthDropdown-months{background:#1A1A1A;color:#F6F1EA}
+    .flatpickr-current-month input.cur-year{color:#F6F1EA}
+    .flatpickr-months .flatpickr-prev-month,.flatpickr-months .flatpickr-next-month{color:#C8A96A;fill:#C8A96A}
+    .flatpickr-months .flatpickr-prev-month:hover svg,.flatpickr-months .flatpickr-next-month:hover svg{fill:#F6F1EA}
+    span.flatpickr-weekday{color:rgba(200,169,106,.85);font-weight:600}
+    .flatpickr-day{color:#F6F1EA;border-radius:.5rem}
+    .flatpickr-day:hover{background:rgba(200,169,106,.15);border-color:transparent}
+    .flatpickr-day.today{border-color:rgba(200,169,106,.5)}
+    .flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange{
+      background:#C8A96A;border-color:#C8A96A;color:#1A1A1A;font-weight:700}
+    .flatpickr-day.inRange{
+      background:rgba(200,169,106,.18);border-color:transparent;color:#F6F1EA;
+      box-shadow:-5px 0 0 rgba(200,169,106,.18),5px 0 0 rgba(200,169,106,.18)}
+    .flatpickr-day.flatpickr-disabled,.flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay{color:rgba(246,241,234,.25)}
+
+    /* ============ Premium switch (booking services) ============ */
+    .mp-switch{position:relative;width:2.75rem;height:1.5rem;flex-shrink:0;border-radius:9999px;
+      background:rgba(246,241,234,.15);transition:background .3s;cursor:pointer}
+    .mp-switch::after{content:'';position:absolute;top:.1875rem;left:.1875rem;width:1.125rem;height:1.125rem;
+      border-radius:9999px;background:#F6F1EA;transition:transform .3s,background .3s}
+    input:checked + .mp-switch{background:#C8A96A}
+    input:checked + .mp-switch::after{transform:translateX(1.25rem);background:#1A1A1A}
+    input:focus-visible + .mp-switch{outline:2px solid #C8A96A;outline-offset:2px}
+
+    /* Accessible Reduced Motion Support */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-delay: 0s !important;
+        animation-duration: 0s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0s !important;
+        scroll-behavior: auto !important;
+      }
+      .mist-layer, .sun-ray, #hero-canvas, #spa-canvas, #custom-cursor, .svg-noise {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-beige text-charcoal dark:bg-charcoal dark:text-beige font-sans antialiased transition-colors duration-300">
+<!-- Interactive Custom Lag Cursor (Desktop Only) -->
+<div id="custom-cursor" class="hidden md:block fixed top-0 left-0 w-8 h-8 rounded-full border border-gold pointer-events-none z-[100]" aria-hidden="true"></div>
+
+<!-- SVG Noise/Linen Texture Overlay -->
+<svg class="svg-noise fixed inset-0 w-full h-full opacity-[0.025] pointer-events-none z-[99]" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <filter id="noise">
+    <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#noise)"/>
+</svg>
+
+<!-- Sticky Navigation Header -->
+<header class="fixed top-0 left-0 w-full z-50 transition-all duration-500"
+        :class="[scrolled ? 'glass-nav text-white shadow-lg py-4' : 'bg-transparent text-white py-6', navHidden ? '-translate-y-full' : 'translate-y-0']">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="#hero" class="flex items-center space-x-2 group relative">
+      <span class="font-serif text-2xl font-bold tracking-wide text-gold transition-transform duration-300 group-hover:scale-105">Mountain Pearl</span>
+    </a>
+
+    <!-- Desktop Nav Menu -->
+    <nav class="hidden lg:flex items-center space-x-8 text-sm uppercase tracking-wider font-medium" aria-label="Navigare principală">
+      <a href="#about" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Despre noi</a>
+      <a href="#rooms" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Camere</a>
+      <a href="#spa" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Wellness Spa</a>
+      <a href="#amenities" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Facilități</a>
+      <a href="#gallery" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Galerie</a>
+      <a href="#attractions" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Atracții</a>
+      <a href="#contact" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Contact</a>
+    </nav>
+
+    <!-- Utility Elements -->
+    <div class="flex items-center space-x-4">
+      <!-- Dark Mode Toggle -->
+      <button
+              @click="darkMode = !darkMode"
+              :aria-pressed="darkMode"
+              class="group relative flex items-center justify-center
+           w-11 h-11
+           rounded-full
+           bg-[#F8F5EE]
+           dark:bg-[#234032]
+           border border-[#D6C29A]/40
+           hover:border-[#C9A96A]
+           hover:shadow-[0_0_18px_rgba(201,169,106,.25)]
+           transition-all duration-500"
+              aria-label="Schimbă tema">
+
+        <!-- Light Mode -->
+        <i
+                data-lucide="sun"
+                class="h-5 w-5 text-[#234032] block dark:hidden transition-transform duration-500 group-hover:rotate-90"
+                aria-hidden="true">
+        </i>
+
+        <!-- Dark Mode -->
+        <i
+                data-lucide="moon-star"
+                class="h-5 w-5 text-[#C9A96A] hidden dark:block transition-transform duration-500 group-hover:-rotate-12"
+                aria-hidden="true">
+        </i>
+
+      </button>
+      <a href="#booking" class="hidden sm:inline-flex relative group overflow-hidden bg-gold text-forest font-semibold px-6 py-2.5 rounded text-sm transition-transform duration-300 hover:scale-105 tracking-wider uppercase">
+        <span class="relative z-10">Rezervă</span>
+      </a>
+
+      <!-- Mobile Menu Button -->
+      <button class="lg:hidden p-2" @click="mobileMenuOpen = true" :aria-expanded="mobileMenuOpen" aria-controls="mobile-menu" aria-label="Deschide meniul de navigare">
+        <i data-lucide="menu" class="h-6 w-6" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="mobile-menu"
+       x-show="mobileMenuOpen"
+       x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+       class="fixed inset-0 bg-forest/95 backdrop-blur-md z-50 flex flex-col justify-center items-center space-y-8 text-2xl text-white font-serif"
+       style="display: none;"
+       role="dialog" aria-modal="true" aria-label="Meniu de navigare">
+    <button x-ref="mobileCloseBtn" @click="mobileMenuOpen = false" class="absolute top-6 right-6 p-2 text-gold" aria-label="Închide meniul">
+      <i data-lucide="x" class="h-8 w-8" aria-hidden="true"></i>
+    </button>
+    <a href="#about" @click="mobileMenuOpen = false" class="hover:text-gold">Despre noi</a>
+    <a href="#rooms" @click="mobileMenuOpen = false" class="hover:text-gold">Camere</a>
+    <a href="#spa" @click="mobileMenuOpen = false" class="hover:text-gold">Wellness Spa</a>
+    <a href="#amenities" @click="mobileMenuOpen = false" class="hover:text-gold">Facilități</a>
+    <a href="#gallery" @click="mobileMenuOpen = false" class="hover:text-gold">Galerie</a>
+    <a href="#attractions" @click="mobileMenuOpen = false" class="hover:text-gold">Atracții</a>
+    <a href="#contact" @click="mobileMenuOpen = false" class="hover:text-gold">Contact</a>
+    <a href="#booking" @click="mobileMenuOpen = false" class="bg-gold text-forest font-bold px-8 py-3 rounded tracking-wider uppercase">Rezervă Acum</a>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+
+  <!-- Parallax Background Image -->
+  <div class="absolute inset-0 scale-110 bg-cover bg-center -z-10" id="hero-bg" style="background-image: linear-gradient(rgba(35, 64, 50, 0.4), rgba(44, 44, 44, 0.65)), url('pensiune-terrace-view.jpg');"></div>
+
+  <!-- Sun Ray Layer -->
+  <div class="absolute top-0 left-0 w-full h-full pointer-events-none -z-10 bg-[radial-gradient(circle_at_center,rgba(253,224,71,0.12),transparent_70%)] sun-ray" aria-hidden="true"></div>
+
+  <!-- Drifting Mist Layer -->
+  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none -z-10 mist-layer scale-125" aria-hidden="true"></div>
+
+  <!-- Dynamic Particle Canvas -->
+  <canvas id="hero-canvas" class="absolute inset-0 pointer-events-none -z-10" aria-hidden="true"></canvas>
+
+  <div class="relative max-w-4xl mx-auto text-center px-6 mt-16 z-10">
+    <div class="hero-reveal inline-flex items-center space-x-1.5 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 mb-6 text-gold text-xs sm:text-sm tracking-widest uppercase">
+      <span aria-hidden="true">★★★★★</span>
+      <span class="text-white">| Evaluare 4.9+ (Peste 480 de Recenzii)</span>
+    </div>
+
+    <h1 class="hero-reveal text-center mb-6">
+    <span class="block font-serif text-5xl sm:text-6xl text-white font-light">
+        Evadează la
+    </span>
+
+      <span class="block font-serif text-6xl sm:text-8xl lg:text-9xl text-white font-semibold">
+        Mountain Pearl
+    </span>
+    </h1>
+
+    <p class="hero-reveal text-lg sm:text-xl text-beige/90 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+      Descoperiți confortul rafinat, vederile montane spectaculoase și ospitalitatea autentică din inima stațiunii Izvoare, Maramureș.
+    </p>
+
+    <div class="hero-reveal flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+      <a href="#booking" class="w-full sm:w-auto relative group overflow-hidden bg-gold text-forest font-semibold px-8 py-4 rounded shadow-lg transition-transform duration-300 hover:scale-105 tracking-wider uppercase text-center flex items-center justify-center space-x-2">
+        <span>Planifică Sejurul</span>
+        <i data-lucide="arrow-right" class="h-4 w-4 transform group-hover:translate-x-1.5 transition-transform duration-300" aria-hidden="true"></i>
+      </a>
+      <a href="#rooms" class="w-full sm:w-auto border border-white/60 hover:border-gold hover:text-gold text-white font-semibold px-8 py-4 rounded backdrop-blur-sm transition-all duration-300 tracking-wider uppercase text-center flex items-center justify-center space-x-2">
+        <span>Explorează Camerele</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Animated Scrolling Indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center" aria-hidden="true">
+    <span class="text-[10px] tracking-widest text-white/50 uppercase mb-2">Glisează în jos</span>
+    <div class="w-6 h-10 border border-white/30 rounded-full flex justify-center p-1">
+      <div class="w-1.5 h-1.5 bg-gold rounded-full animate-bounce"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Cinematic transition elements (styled/animated by transition.js) -->
+<div class="mp-ridge mp-ridge--left"  id="mp-ridge-left"  aria-hidden="true"></div>
+<div class="mp-ridge mp-ridge--right" id="mp-ridge-right" aria-hidden="true"></div>
+
+<div class="mp-pearl" id="mp-pearl" aria-hidden="true">
+  <div class="mp-pearl__core"></div>
+</div>
+
+<div class="mp-particles" id="mp-particles" aria-hidden="true"></div>
+<div class="mp-fog mp-fog--1" aria-hidden="true"><div class="mp-fog__inner"></div></div>
+<div class="mp-fog mp-fog--2" aria-hidden="true"><div class="mp-fog__inner"></div></div>
+<div class="mp-fog mp-fog--3" aria-hidden="true"><div class="mp-fog__inner"></div></div>
+<div class="mp-fog mp-fog--4" aria-hidden="true"><div class="mp-fog__inner"></div></div>
+<div class="mp-fog mp-fog--5" aria-hidden="true"><div class="mp-fog__inner"></div></div>
+<div class="mp-fog mp-fog--6" aria-hidden="true"><div class="mp-fog__inner"></div></div>
+
+<div class="mp-hero" aria-hidden="true">
+  <div class="mp-hero__media" id="mp-hero-media">
+    <div class="mp-hero__inner"></div>
+  </div>
+  <div class="mp-hero__vignette"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
+<script src="transition.js"></script>
+
+<!-- About Section -->
+<section id="about" class="py-32 max-w-7xl mx-auto px-6 relative z-10">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+
+    <!-- Side Images with Overlaps -->
+    <div class="lg:col-span-7 relative">
+      <div class="relative z-10 w-4/5 overflow-hidden rounded-xl shadow-2xl border-4 border-white dark:border-neutral-800">
+        <img src="857926408.jpg" alt="Fațada exterioară a Pensiunii Mountain Pearl" loading="lazy" decoding="async" class="scroll-zoom w-full h-[400px] object-cover">
+      </div>
+      <div class="absolute right-0 bottom-[-40px] z-20 w-3/5 overflow-hidden rounded-xl shadow-2xl border-4 border-white dark:border-neutral-800">
+        <img src="857926406.jpg" alt="Terasă cu vedere panoramică spre munte" loading="lazy" decoding="async" class="scroll-zoom w-full h-80 object-cover">
+      </div>
+    </div>
+
+    <!-- About Content -->
+    <div class="lg:col-span-5 space-y-6 scroll-reveal lg:pl-6">
+      <span class="text-gold font-medium tracking-widest uppercase text-sm block">Ospitalitate Caldă</span>
+      <h2 class="font-serif text-center leading-tight">
+    <span class="block text-3xl sm:text-4xl font-bold text-forest dark:text-white">
+        Unde tihna întâlnește
+    </span>
+
+        <span class="block text-3xl sm:text-5xl font-bold text-forest dark:text-white whitespace-nowrap">
+        măreția munților
+    </span>
+      </h2>
+      <p class="text-lg leading-relaxed text-charcoal/80 dark:text-beige/80 font-light">
+        Pensiunea Mountain Pearl este amplasată în zona turistică Izvoare din comuna Desești. Proprietatea noastră îmbină perfect elementele moderne cu ospitalitatea caldă maramureșeană pentru a vă oferi o experiență montană cu totul deosebită.
+      </p>
+      <p class="text-charcoal/70 dark:text-beige/70 leading-relaxed font-light">
+        Relaxați-vă pe terasa noastră exterioară spațioasă cu vedere directă spre culmile muntoase, explorați cărările pitorești din jur sau bucurați-vă de piscina noastră interioară. Fie că plănuiți o escapadă romantică în doi sau o vacanță activă cu familia, vă punem la dispoziție servicii de calitate la standarde premium.
+      </p>
+
+      <!-- Key Highlights -->
+      <div class="grid grid-cols-2 gap-6 pt-4">
+        <div class="flex items-start space-x-3 group">
+          <div class="p-2.5 bg-forest/5 dark:bg-white/5 rounded-lg group-hover:scale-110 transition-all duration-300">
+            <i data-lucide="compass" class="h-6 w-6 text-gold" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h4 class="font-semibold text-forest dark:text-white">Aventuri Active</h4>
+            <p class="text-sm text-charcoal/60 dark:text-beige/60 font-light">Pârtie de schi (50m) și trasee spre Vârful Igniș</p>
+          </div>
+        </div>
+        <div class="flex items-start space-x-3 group">
+          <div class="p-2.5 bg-forest/5 dark:bg-white/5 rounded-lg group-hover:scale-110 transition-all duration-300">
+            <i data-lucide="heart" class="h-6 w-6 text-gold" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h4 class="font-semibold text-forest dark:text-white">Relaxare Deplină</h4>
+            <p class="text-sm text-charcoal/60 dark:text-beige/60 font-light">Piscină interioară încălzită, jacuzzi și saune</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Hosts Signature Letter Section -->
+<section class="py-24 bg-forest text-beige relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(35,64,50,0.5),transparent_70%)] pointer-events-none" aria-hidden="true"></div>
+  <div class="max-w-4xl mx-auto px-6 text-center relative z-10 scroll-reveal">
+    <span class="text-gold font-medium tracking-widest uppercase text-xs block mb-4">Gânduri de la gazde</span>
+    <i data-lucide="quote" class="h-8 w-8 text-gold/30 mx-auto mb-6" aria-hidden="true"></i>
+    <h3 class="font-serif text-3xl sm:text-4xl italic leading-relaxed text-white mb-6">
+      „Am construit Mountain Pearl nu doar ca pe un loc de cazare, ci ca pe un cămin deschis în inima pădurilor. Ne-am dorit un loc în care mirosul lemnului ars în șemineu, clipocitul apei calde și liniștea serii să vă reconecteze cu ceea ce contează cu adevărat."
+    </h3>
+    <p class="text-sm text-beige/70 max-w-xl mx-auto mb-8 font-light">
+      Vă așteptăm cu drag să ne treceți pragul, să povestim pe terasă la un pahar de afinată de casă și să vă bucurați de tot ce are mai frumos de oferit Maramureșul nostru.
+    </p>
+    <div>
+      <p class="text-gold tracking-wide text-sm uppercase">Cu dragoste și respect,</p>
+      <p class="signature-font text-5xl text-gold mt-2">Tudor și Maria</p>
+    </div>
+  </div>
+</section>
+
+<!-- Rooms Section -->
+<section id="rooms" class="py-32 bg-white dark:bg-[#1A1A1A] transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center max-w-2xl mx-auto mb-20 scroll-reveal">
+      <span class="text-gold font-medium tracking-widest uppercase text-sm block">Opțiuni de Cazare</span>
+      <h2
+              class="font-serif font-bold text-forest dark:text-white mt-2 split-text whitespace-nowrap"
+              style="font-size: clamp(2rem, 4vw, 3rem);">
+        Camere Elegante și Confortabile
+      </h2>
+      <p class="text-charcoal/60 dark:text-beige/60 mt-4">Fiecare cameră este dotată cu baie proprie modernă, încălzire centrală, televizoare cu ecran plat, internet de mare viteză și vederi deosebite spre natură.</p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 md:grid-cols-2 gap-8">
+
+      <!-- Camera 1 -->
+      <article class="group bg-white dark:bg-charcoal rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
+        <div class="relative overflow-hidden">
+          <img src="857927032.jpg" alt="Cameră Dublă Deluxe" class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-700">
+
+          <span class="absolute top-4 right-4 bg-forest text-gold text-xs font-semibold px-4 py-2 rounded-full">
+                Best Seller
+            </span>
+        </div>
+
+        <div class="p-8">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="font-serif text-2xl font-semibold text-forest dark:text-white">
+              Cameră Dublă Deluxe
+            </h3>
+
+            <div class="flex items-center space-x-1 text-gold">
+              <i data-lucide="sparkles" class="h-4 w-4"></i>
+              <span class="text-sm">Premium</span>
+            </div>
+          </div>
+
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            Descriere cameră...
+          </p>
+
+          <a href="#booking" class="inline-flex items-center text-gold font-semibold hover:gap-3 transition-all">
+            Rezervă acum
+            <i data-lucide="arrow-right" class="ml-2 h-4 w-4"></i>
+          </a>
+        </div>
+      </article>
+
+      <!-- Camera 2 -->
+      <article class="group bg-white dark:bg-charcoal rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
+        <div class="relative overflow-hidden">
+          <img src="857927093.jpg" alt="Cameră Deluxe Twin" class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-700">
+
+          <span class="absolute top-4 right-4 bg-gold text-forest text-xs font-semibold px-4 py-2 rounded-full">
+                Twin
+            </span>
+        </div>
+
+        <div class="p-8">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="font-serif text-2xl font-semibold text-forest dark:text-white">
+              Cameră Deluxe dublă sau twin
+            </h3>
+
+            <div class="flex items-center space-x-1 text-gold">
+              <i data-lucide="bed-double" class="h-4 w-4"></i>
+            </div>
+          </div>
+
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            Descriere cameră...
+          </p>
+
+          <a href="#booking" class="inline-flex items-center text-gold font-semibold">
+            Rezervă acum
+          </a>
+        </div>
+      </article>
+
+      <!-- Camera 3 -->
+      <article class="group bg-white dark:bg-charcoal rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
+        <div class="relative overflow-hidden">
+          <img src="857927298.jpg" alt="Cameră triplă de lux" class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-700">
+
+          <span class="absolute top-4 right-4 bg-forest text-gold text-xs font-semibold px-4 py-2 rounded-full">
+                Family
+            </span>
+        </div>
+
+        <div class="p-8">
+          <h3 class="font-serif text-2xl font-semibold text-forest dark:text-white mb-3">
+            Cameră triplă de lux
+          </h3>
+
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            Descriere cameră...
+          </p>
+
+          <a href="#booking" class="inline-flex items-center text-gold font-semibold">
+            Rezervă acum
+          </a>
+        </div>
+      </article>
+
+      <!-- Camera 4 -->
+      <article class="group bg-white dark:bg-charcoal rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
+        <div class="relative overflow-hidden">
+          <img src="857926670.jpg" alt="Cameră King cu balcon" class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-700">
+
+          <span class="absolute top-4 right-4 bg-gold text-forest text-xs font-semibold px-4 py-2 rounded-full">
+                Mountain View
+            </span>
+        </div>
+
+        <div class="p-8">
+          <h3 class="font-serif text-2xl font-semibold text-forest dark:text-white mb-3">
+            Cameră King cu balcon
+          </h3>
+
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            Descriere cameră...
+          </p>
+
+          <a href="#booking" class="inline-flex items-center text-gold font-semibold">
+            Rezervă acum
+          </a>
+        </div>
+      </article>
+
+      <!-- Camera 5 -->
+      <article class="group bg-white dark:bg-charcoal rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
+        <div class="relative overflow-hidden">
+          <img src="857928581.jpg" alt="Cameră triplă cu balcon" class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-700">
+
+          <span class="absolute top-4 right-4 bg-forest text-gold text-xs font-semibold px-4 py-2 rounded-full">
+                Family Choice
+            </span>
+        </div>
+
+        <div class="p-8">
+          <h3 class="font-serif text-2xl font-semibold text-forest dark:text-white mb-3">
+            Cameră triplă cu balcon
+          </h3>
+
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            Descriere cameră...
+          </p>
+
+          <a href="#booking" class="inline-flex items-center text-gold font-semibold">
+            Rezervă acum
+          </a>
+        </div>
+      </article>
+
+      <!-- Camera 6 -->
+      <article class="group bg-white dark:bg-charcoal rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
+        <div class="relative overflow-hidden">
+          <img src="857927681.jpg" alt="Cameră Deluxe Twin cu balcon" class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-700">
+
+          <span class="absolute top-4 right-4 bg-gold text-forest text-xs font-semibold px-4 py-2 rounded-full">
+                Balcony
+            </span>
+        </div>
+
+        <div class="p-8">
+          <h3 class="font-serif text-2xl font-semibold text-forest dark:text-white mb-3">
+            Cameră dublă sau twin Deluxe cu balcon
+          </h3>
+
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            Descriere cameră...
+          </p>
+
+          <a href="#booking" class="inline-flex items-center text-gold font-semibold">
+            Rezervă acum
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- Wellness Spa Section -->
+<section id="spa" class="relative py-32 lg:py-40 bg-gradient-to-b from-white via-beige/20 to-white dark:from-charcoal dark:via-charcoal dark:to-charcoal overflow-hidden">
+
+  <canvas id="spa-canvas" class="absolute inset-0 pointer-events-none z-10"></canvas>
+
+  <div class="max-w-7xl mx-auto px-6 relative z-20">
+
+    <!-- Heading -->
+    <div class="max-w-3xl mx-auto text-center mb-20 scroll-reveal">
+
+            <span class="inline-block text-gold uppercase tracking-[0.35em] text-sm font-semibold mb-5">
+                Wellness & Spa
+            </span>
+
+      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-semibold text-forest dark:text-white leading-tight text-center split-text">
+        Oaza Noastră de Relaxare
+      </h2>
+
+      <p class="mt-8 text-lg lg:text-xl leading-9 text-charcoal/75 dark:text-beige/80">
+        Relaxați-vă într-o atmosferă elegantă, unde piscina interioară încălzită,
+        jacuzzi-ul și sauna creează cadrul perfect pentru momente de liniște și răsfăț.
+      </p>
+
+    </div>
+
+    <!-- Gallery -->
+    <div class="grid lg:grid-cols-12 gap-6 items-center">
+
+      <!-- Imagine mare -->
+      <div class="lg:col-span-8 scroll-reveal">
+
+        <div class="relative rounded-3xl overflow-hidden shadow-2xl group">
+
+          <img
+                  src="857925128.jpg"
+                  alt="Piscină interioară"
+                  class="scroll-zoom w-full h-[600px] object-cover transition-transform duration-1000 group-hover:scale-105">
+
+          <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+
+        </div>
+
+      </div>
+
+      <!-- Imagini mici -->
+      <div class="lg:col-span-4 space-y-6">
+
+        <div class="relative rounded-3xl overflow-hidden shadow-xl group scroll-reveal">
+
+          <img
+                  src="857925333.jpg"
+                  alt="Jacuzzi"
+                  class="scroll-zoom h-[285px] w-full object-cover transition-transform duration-1000 group-hover:scale-105">
+
+        </div>
+
+        <div class="relative rounded-3xl overflow-hidden shadow-xl group scroll-reveal">
+
+          <img
+                  src="857925287.jpg"
+                  alt="Saună"
+                  class="scroll-zoom h-[285px] w-full object-cover transition-transform duration-1000 group-hover:scale-105">
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Premium Spa Features -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-20">
+
+      <!-- Piscină -->
+      <article
+              class="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-7 min-h-[210px] transition-all duration-500 hover:-translate-y-2 hover:border-gold hover:bg-white/10 hover:shadow-2xl scroll-reveal">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-700"></div>
+
+        <i data-lucide="waves"
+           class="relative w-8 h-8 text-gold mb-5 transition duration-500 group-hover:scale-110"></i>
+
+        <h3 class="relative font-serif text-2xl text-forest dark:text-white mb-3">
+          Piscină
+        </h3>
+
+        <div class="overflow-hidden">
+
+          <p class="relative text-charcoal/70 dark:text-beige/70 text-sm leading-7 opacity-0 max-h-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:max-h-40 group-hover:translate-y-0">
+            Piscină interioară încălzită, ideală pentru relaxare în orice anotimp.
+          </p>
+
+        </div>
+
+        <div
+                class="absolute bottom-0 left-0 h-[2px] w-0 bg-gold transition-all duration-500 group-hover:w-full">
+        </div>
+
+      </article>
+
+      <!-- Jacuzzi -->
+      <article
+              class="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-7 min-h-[210px] transition-all duration-500 hover:-translate-y-2 hover:border-gold hover:bg-white/10 hover:shadow-2xl scroll-reveal">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-700"></div>
+
+        <i data-lucide="flame"
+           class="relative w-8 h-8 text-gold mb-5 transition duration-500 group-hover:scale-110"></i>
+
+        <h3 class="relative font-serif text-2xl text-forest dark:text-white mb-3">
+          Jacuzzi
+        </h3>
+
+        <div class="overflow-hidden">
+
+          <p class="relative text-charcoal/70 dark:text-beige/70 text-sm leading-7 opacity-0 max-h-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:max-h-40 group-hover:translate-y-0">
+            Bucură-te de hidromasaj și momente de răsfăț într-o atmosferă intimă.
+          </p>
+
+        </div>
+
+        <div
+                class="absolute bottom-0 left-0 h-[2px] w-0 bg-gold transition-all duration-500 group-hover:w-full">
+        </div>
+
+      </article>
+
+      <!-- Sauna -->
+      <article
+              class="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-7 min-h-[210px] transition-all duration-500 hover:-translate-y-2 hover:border-gold hover:bg-white/10 hover:shadow-2xl scroll-reveal">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-700"></div>
+
+        <i data-lucide="flame-kindling"
+           class="relative w-8 h-8 text-gold mb-5 transition duration-500 group-hover:scale-110"></i>
+
+        <h3 class="relative font-serif text-2xl text-forest dark:text-white mb-3">
+          Saună
+        </h3>
+
+        <div class="overflow-hidden">
+
+          <p class="relative text-charcoal/70 dark:text-beige/70 text-sm leading-7 opacity-0 max-h-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:max-h-40 group-hover:translate-y-0">
+            Un spațiu dedicat revitalizării și relaxării complete după o zi petrecută în natură.
+          </p>
+
+        </div>
+
+        <div
+                class="absolute bottom-0 left-0 h-[2px] w-0 bg-gold transition-all duration-500 group-hover:w-full">
+        </div>
+
+      </article>
+
+      <!-- Relaxare -->
+      <article
+              class="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-7 min-h-[210px] transition-all duration-500 hover:-translate-y-2 hover:border-gold hover:bg-white/10 hover:shadow-2xl scroll-reveal">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-700"></div>
+
+        <i data-lucide="sparkles"
+           class="relative w-8 h-8 text-gold mb-5 transition duration-500 group-hover:scale-110"></i>
+
+        <h3 class="relative font-serif text-2xl text-forest dark:text-white mb-3">
+          Relaxare
+        </h3>
+
+        <div class="overflow-hidden">
+
+          <p class="relative text-charcoal/70 dark:text-beige/70 text-sm leading-7 opacity-0 max-h-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:max-h-40 group-hover:translate-y-0">
+            Atmosferă elegantă, lumini ambientale și confort premium pentru momente de liniște.
+          </p>
+
+        </div>
+
+        <div
+                class="absolute bottom-0 left-0 h-[2px] w-0 bg-gold transition-all duration-500 group-hover:w-full">
+        </div>
+
+      </article>
+
+    </div>
+
+    <!-- Dining/Restaurant Section -->
+    <!-- Restaurant Gallery -->
+    <div class="scroll-reveal mt-24">
+
+      <div class="grid grid-cols-12 gap-5">
+
+        <!-- Imagine principală -->
+        <div class="col-span-12">
+
+          <div class="group relative overflow-hidden rounded-[36px] shadow-[0_35px_80px_rgba(0,0,0,.18)]">
+
+            <img
+                    src="857926235.jpg"
+                    alt="Restaurant Mountain Pearl"
+                    loading="lazy"
+                    class="scroll-zoom w-full h-[650px] object-cover transition-transform duration-[1800ms] group-hover:scale-105">
+
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+
+            <div class="absolute bottom-8 left-8 text-white">
+
+                        <span class="uppercase tracking-[0.3em] text-xs text-gold">
+                            Restaurant
+                        </span>
+
+              <h3 class="font-serif text-4xl mt-2">
+                O experiență culinară autentică
+              </h3>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Galerie -->
+
+        <div class="col-span-12 lg:col-span-4">
+
+          <div class="group relative overflow-hidden rounded-[28px]">
+
+            <img
+                    src="857926292.jpg"
+                    alt="Preparate restaurant"
+                    class="scroll-zoom w-full h-[250px] object-cover transition-transform duration-1000 group-hover:scale-110">
+
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition"></div>
+
+            <span class="absolute bottom-5 left-5 text-white font-medium">
+                        Preparate
+                    </span>
+
+          </div>
+
+        </div>
+
+        <div class="col-span-12 lg:col-span-4">
+
+          <div class="group relative overflow-hidden rounded-[28px]">
+
+            <img src="857926376.jpg"
+                 alt="Interior restaurant"
+                 class="scroll-zoom w-full h-[250px] object-cover transition-transform duration-1000 group-hover:scale-110">
+
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition"></div>
+
+            <span class="absolute bottom-5 left-5 text-white font-medium">
+                        Interior Elegant
+                    </span>
+
+          </div>
+
+        </div>
+
+        <div class="col-span-12 lg:col-span-4">
+
+          <div class="group relative overflow-hidden rounded-[28px]">
+
+            <img
+                    src="857926295.jpg"
+                    alt="Mic dejun"
+                    class="scroll-zoom w-full h-[250px] object-cover transition-transform duration-1000 group-hover:scale-110">
+
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition"></div>
+
+            <span class="absolute bottom-5 left-5 text-white font-medium">
+                        Mic Dejun
+                    </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Dining Features -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
+
+      <!-- Bucătărie Locală -->
+      <article
+              class="group relative overflow-hidden rounded-3xl border border-black/5 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl p-7 min-h-[210px] transition-all duration-500 hover:-translate-y-2 hover:border-gold hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-2xl scroll-reveal">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-700"></div>
+
+        <i data-lucide="chef-hat"
+           class="relative w-8 h-8 text-gold mb-5 transition duration-500 group-hover:scale-110"></i>
+
+        <h3 class="relative font-serif text-2xl text-forest dark:text-white mb-3">
+          Bucătărie Locală
+        </h3>
+
+        <div class="overflow-hidden">
+
+          <p class="relative text-charcoal/70 dark:text-beige/70 text-sm leading-7 opacity-0 max-h-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:max-h-40 group-hover:translate-y-0">
+            Preparate inspirate din gastronomia tradițională a Maramureșului,
+            realizate din ingrediente proaspete și rețete autentice.
+          </p>
+
+        </div>
+
+        <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-gold transition-all duration-500 group-hover:w-full"></div>
+
+      </article>
+
+      <!-- Ambianță Elegantă -->
+      <article
+              class="group relative overflow-hidden rounded-3xl border border-black/5 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl p-7 min-h-[210px] transition-all duration-500 hover:-translate-y-2 hover:border-gold hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-2xl scroll-reveal">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-700"></div>
+
+        <i data-lucide="wine"
+           class="relative w-8 h-8 text-gold mb-5 transition duration-500 group-hover:scale-110"></i>
+
+        <h3 class="relative font-serif text-2xl text-forest dark:text-white mb-3">
+          Ambianță Elegantă
+        </h3>
+
+        <div class="overflow-hidden">
+
+          <p class="relative text-charcoal/70 dark:text-beige/70 text-sm leading-7 opacity-0 max-h-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:max-h-40 group-hover:translate-y-0">
+            Design contemporan cu influențe tradiționale și o atmosferă
+            caldă pentru cine memorabile alături de cei dragi.
+          </p>
+
+        </div>
+
+        <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-gold transition-all duration-500 group-hover:w-full"></div>
+
+      </article>
+
+      <!-- Ingrediente Premium -->
+      <article
+              class="group relative overflow-hidden rounded-3xl border border-black/5 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl p-7 min-h-[210px] transition-all duration-500 hover:-translate-y-2 hover:border-gold hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-2xl scroll-reveal">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-700"></div>
+
+        <i data-lucide="utensils-crossed"
+           class="relative w-8 h-8 text-gold mb-5 transition duration-500 group-hover:scale-110"></i>
+
+        <h3 class="relative font-serif text-2xl text-forest dark:text-white mb-3">
+          Ingrediente Premium
+        </h3>
+
+        <div class="overflow-hidden">
+
+          <p class="relative text-charcoal/70 dark:text-beige/70 text-sm leading-7 opacity-0 max-h-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:max-h-40 group-hover:translate-y-0">
+            Gust autentic, ingrediente atent selecționate și preparate
+            servite cu grijă pentru fiecare oaspete.
+          </p>
+
+        </div>
+
+        <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-gold transition-all duration-500 group-hover:w-full"></div>
+
+      </article>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- Gallery Section -->
+<!-- ============================================================
+     GALLERY — Mountain Pearl Deșești (curated, editorial)
+     Drop-in replacement for the old <section id="gallery">.
+     Same id (nav anchor intact), same Alpine/Tailwind/GSAP stack,
+     same image files. Keeps .scroll-reveal / .split-text hooks so
+     the site's existing GSAP animations keep working.
+     ============================================================ -->
+<section id="gallery"
+         class="relative py-32 lg:py-40 bg-white dark:bg-[#161616] overflow-hidden transition-colors duration-300"
+         x-data="{
+             images: [
+                 { src: '857924278.jpg', alt: 'Fațada pensiunii Mountain Pearl la apus',        title: 'Refugiul dintre brazi' },
+                 { src: '857926673.jpg', alt: 'Cameră elegantă cu lenjerie premium',            title: 'Camere & Suite' },
+                 { src: '857925278.jpg', alt: 'Piscina interioară încălzită',                   title: 'Wellness & Spa' },
+                 { src: '450664033.jpg', alt: 'Restaurantul pensiunii, ambianță caldă',         title: 'Gastronomie' },
+                 { src: '421327978.jpg', alt: 'Priveliște montană de pe terasă',                title: 'Panorama Igniș' },
+                 { src: '857927022.jpg', alt: 'Detaliu de cameră cu accente aurii',             title: 'Detalii rafinate' },
+                 { src: '857927033.jpg', alt: 'Pat king-size cu vedere spre pădure',            title: 'Odihnă deplină' },
+                 { src: '857927408.jpg', alt: 'Baie modernă cu finisaje premium',               title: 'Confort modern' },
+                 { src: '857927560.jpg', alt: 'Colț de relaxare în cameră',                     title: 'Momente de tihnă' }
+             ],
+             lightboxOpen: false,
+             lightboxIndex: 0,
+             openLightbox(i) {
+                 this.lightboxIndex = i;
+                 this.lightboxOpen = true;
+             },
+             closeLightbox() { this.lightboxOpen = false; },
+             nextImage() { this.lightboxIndex = (this.lightboxIndex + 1) % this.images.length; },
+             prevImage() { this.lightboxIndex = (this.lightboxIndex - 1 + this.images.length) % this.images.length; },
+             init() {
+                 this.$watch('lightboxOpen', open => {
+                     document.body.style.overflow = open ? 'hidden' : '';
+                     if (open) this.$nextTick(() => this.$refs.lightboxClose && this.$refs.lightboxClose.focus());
+                 });
+             }
+         }"
+         @keydown.escape.window="closeLightbox()"
+         @keydown.arrow-right.window="lightboxOpen && nextImage()"
+         @keydown.arrow-left.window="lightboxOpen && prevImage()">
+
+  <div class="max-w-7xl mx-auto px-6">
+
+    <!-- ===== Heading ===== -->
+    <div class="max-w-2xl mb-16 lg:mb-20 scroll-reveal">
+            <span class="inline-block mb-5 text-gold tracking-[0.35em] uppercase text-xs font-semibold">
+                Galerie
+            </span>
+      <h2 class="font-serif text-4xl sm:text-5xl lg:text-5xl font-semibold text-forest dark:text-white leading-[1.1] split-text">
+        Momente Mountain Pearl
+      </h2>
+      <p class="mt-6 text-lg leading-8 text-charcoal/70 dark:text-beige/70 font-light">
+        O selecție restrânsă de imagini — camerele, spa-ul și priveliștile
+        care definesc atmosfera pensiunii noastre din Desești.
+      </p>
+    </div>
+
+    <!-- ===== Featured editorial layout (desktop & tablet) =====
+         1 hero image + 3 secondary, asymmetric, lots of air.
+         Hidden on mobile in favour of the swipe row below. -->
+    <div class="hidden sm:grid grid-cols-12 gap-5 lg:gap-6">
+
+      <!-- Hero image — spans 2 rows -->
+      <button type="button"
+              @click="openLightbox(0)"
+              class="group relative col-span-12 lg:col-span-7 row-span-2 overflow-hidden rounded-[28px] text-left
+                           shadow-[0_25px_60px_rgba(26,26,26,.12)] hover:shadow-[0_35px_80px_rgba(26,26,26,.22)]
+                           transition-shadow duration-700 scroll-reveal"
+              :aria-label="'Deschide imaginea: ' + images[0].title">
+        <img :src="images[0].src" :alt="images[0].alt" loading="lazy" decoding="async"
+             class="w-full h-[420px] lg:h-[640px] object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.04]">
+        <div class="absolute inset-0 bg-gradient-to-t from-forest/70 via-forest/10 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-700"></div>
+        <div class="absolute bottom-0 left-0 p-8 lg:p-10">
+          <span class="block w-10 h-[2px] bg-gold mb-4 origin-left scale-x-100 lg:scale-x-75 group-hover:scale-x-100 transition-transform duration-700"></span>
+          <span class="uppercase tracking-[0.3em] text-[11px] text-gold font-semibold">Mountain Pearl</span>
+          <h3 class="font-serif text-3xl lg:text-4xl text-white mt-2" x-text="images[0].title"></h3>
+        </div>
+      </button>
+
+      <!-- Secondary 1 -->
+      <button type="button"
+              @click="openLightbox(1)"
+              class="group relative col-span-6 lg:col-span-5 overflow-hidden rounded-[28px] text-left
+                           shadow-[0_20px_50px_rgba(26,26,26,.10)] hover:shadow-[0_30px_70px_rgba(26,26,26,.20)]
+                           transition-shadow duration-700 scroll-reveal"
+              :aria-label="'Deschide imaginea: ' + images[1].title">
+        <img :src="images[1].src" :alt="images[1].alt" loading="lazy" decoding="async"
+             class="w-full h-[310px] object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.04]">
+        <div class="absolute inset-0 bg-gradient-to-t from-forest/60 via-transparent to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-700"></div>
+        <div class="absolute bottom-0 left-0 p-7">
+          <span class="uppercase tracking-[0.3em] text-[10px] text-gold font-semibold">Camere</span>
+          <h3 class="font-serif text-2xl text-white mt-1.5" x-text="images[1].title"></h3>
+        </div>
+      </button>
+
+      <!-- Secondary 2 -->
+      <button type="button"
+              @click="openLightbox(2)"
+              class="group relative col-span-6 lg:col-span-5 overflow-hidden rounded-[28px] text-left
+                           shadow-[0_20px_50px_rgba(26,26,26,.10)] hover:shadow-[0_30px_70px_rgba(26,26,26,.20)]
+                           transition-shadow duration-700 scroll-reveal"
+              :aria-label="'Deschide imaginea: ' + images[2].title">
+        <img :src="images[2].src" :alt="images[2].alt" loading="lazy" decoding="async"
+             class="w-full h-[310px] object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.04]">
+        <div class="absolute inset-0 bg-gradient-to-t from-forest/60 via-transparent to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-700"></div>
+        <div class="absolute bottom-0 left-0 p-7">
+          <span class="uppercase tracking-[0.3em] text-[10px] text-gold font-semibold">Wellness</span>
+          <h3 class="font-serif text-2xl text-white mt-1.5" x-text="images[2].title"></h3>
+        </div>
+      </button>
+
+      <!-- Secondary 3 — wide, under the two smaller ones -->
+      <button type="button"
+              @click="openLightbox(3)"
+              class="group relative col-span-12 overflow-hidden rounded-[28px] text-left
+                           shadow-[0_20px_50px_rgba(26,26,26,.10)] hover:shadow-[0_30px_70px_rgba(26,26,26,.20)]
+                           transition-shadow duration-700 scroll-reveal"
+              :aria-label="'Deschide imaginea: ' + images[3].title">
+        <img :src="images[3].src" :alt="images[3].alt" loading="lazy" decoding="async"
+             class="w-full h-[260px] lg:h-[300px] object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.04]">
+        <div class="absolute inset-0 bg-gradient-to-r from-forest/70 via-forest/10 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-700"></div>
+        <div class="absolute inset-y-0 left-0 flex flex-col justify-center p-8 lg:p-10">
+          <span class="uppercase tracking-[0.3em] text-[10px] text-gold font-semibold">Restaurant</span>
+          <h3 class="font-serif text-2xl lg:text-3xl text-white mt-1.5" x-text="images[3].title"></h3>
+        </div>
+      </button>
+
+    </div>
+
+    <!-- ===== Mobile: elegant horizontal swipe (no vertical stack) ===== -->
+    <div class="sm:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4"
+         aria-label="Galerie foto — glisează orizontal">
+      <template x-for="(img, i) in images.slice(0, 5)" :key="img.src">
+        <button type="button"
+                @click="openLightbox(i)"
+                class="group relative shrink-0 w-[82%] snap-center overflow-hidden rounded-3xl text-left shadow-lg"
+                :aria-label="'Deschide imaginea: ' + img.title">
+          <img :src="img.src" :alt="img.alt" loading="lazy" decoding="async"
+               class="w-full h-[380px] object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-forest/70 via-transparent to-transparent"></div>
+          <div class="absolute bottom-0 left-0 p-6">
+            <span class="uppercase tracking-[0.3em] text-[10px] text-gold font-semibold">Mountain Pearl</span>
+            <h3 class="font-serif text-xl text-white mt-1" x-text="img.title"></h3>
+          </div>
+        </button>
+      </template>
+    </div>
+
+    <!-- ===== CTA ===== -->
+    <div class="mt-14 lg:mt-16 flex flex-col sm:flex-row items-center justify-between gap-6 scroll-reveal">
+      <p class="text-sm text-charcoal/50 dark:text-beige/50 font-light tracking-wide">
+        <span x-text="images.length"></span> fotografii în colecția completă
+      </p>
+      <button type="button"
+              @click="openLightbox(0)"
+              class="group inline-flex items-center gap-3 border border-forest/25 dark:border-beige/25 hover:border-gold
+                           text-forest dark:text-beige hover:text-gold dark:hover:text-gold
+                           px-8 py-4 rounded-full uppercase tracking-[0.25em] text-xs font-semibold
+                           transition-all duration-500">
+        Vezi toate fotografiile
+        <i data-lucide="arrow-right" class="h-4 w-4 transition-transform duration-500 group-hover:translate-x-1.5" aria-hidden="true"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ===== Lightbox / full-gallery slider ===== -->
+  <div x-show="lightboxOpen"
+       x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+       class="fixed inset-0 bg-charcoal/95 backdrop-blur-md z-[70] flex items-center justify-center p-4"
+       style="display: none;"
+       @click.self="closeLightbox()"
+       role="dialog" aria-modal="true" aria-label="Galeria foto completă">
+
+    <button x-ref="lightboxClose" @click="closeLightbox()"
+            class="absolute top-6 right-6 w-12 h-12 rounded-full border border-white/20 text-white hover:text-gold hover:border-gold flex items-center justify-center transition-colors duration-300 z-10"
+            aria-label="Închide galeria">
+      <i data-lucide="x" class="h-5 w-5" aria-hidden="true"></i>
+    </button>
+
+    <button @click="prevImage()"
+            class="absolute left-3 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border border-white/20 text-white/80 hover:text-gold hover:border-gold flex items-center justify-center transition-colors duration-300"
+            aria-label="Imaginea anterioară">
+      <i data-lucide="chevron-left" class="h-6 w-6" aria-hidden="true"></i>
+    </button>
+
+    <figure class="max-w-6xl w-full">
+      <img :src="images[lightboxIndex].src"
+           :alt="images[lightboxIndex].alt"
+           class="w-full max-h-[78vh] object-contain rounded-2xl shadow-2xl select-none">
+      <figcaption class="mt-5 flex items-end justify-between gap-4 px-1">
+        <div>
+          <span class="uppercase tracking-[0.3em] text-[10px] text-gold font-semibold">Mountain Pearl</span>
+          <p class="font-serif text-2xl text-white mt-1" x-text="images[lightboxIndex].title"></p>
+        </div>
+        <p class="text-white/60 text-sm tabular-nums shrink-0">
+          <span x-text="lightboxIndex + 1"></span> / <span x-text="images.length"></span>
+        </p>
+      </figcaption>
+    </figure>
+
+    <button @click="nextImage()"
+            class="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border border-white/20 text-white/80 hover:text-gold hover:border-gold flex items-center justify-center transition-colors duration-300"
+            aria-label="Imaginea următoare">
+      <i data-lucide="chevron-right" class="h-6 w-6" aria-hidden="true"></i>
+    </button>
+  </div>
+
+</section>
+
+<!-- Attractions Section -->
+<section id="attractions" class="py-32 bg-beige dark:bg-[#161616] transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+
+      <!-- Vârful Igniș -->
+      <div class="group bg-white dark:bg-charcoal rounded-2xl overflow-hidden shadow hover:shadow-xl transition-all duration-500 scroll-reveal">
+
+        <div class="h-56 overflow-hidden">
+          <img
+                  src="images.jpeg"
+                  alt="Vârful Igniș"
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+        </div>
+
+        <div class="p-8">
+
+          <h3 class="font-serif text-2xl font-semibold mb-2 text-forest dark:text-white">
+            Vârful Igniș
+          </h3>
+
+          <div class="overflow-hidden">
+
+            <p class="text-sm text-charcoal/75 dark:text-beige/75 font-light leading-relaxed
+                opacity-0 max-h-0 translate-y-4
+                transition-all duration-500
+                group-hover:opacity-100
+                group-hover:max-h-40
+                group-hover:translate-y-0">
+
+              Bucurați-vă de o drumeție deosebită ce pornește chiar de la
+              Pensiunea Mountain Pearl și urcă până pe platoul înalt al
+              Vârfului Igniș pentru o panoramă de neuitat.
+
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Biserica de Lemn -->
+      <div class="group bg-white dark:bg-charcoal rounded-2xl overflow-hidden shadow hover:shadow-xl transition-all duration-500 scroll-reveal">
+
+        <div class="h-56 overflow-hidden">
+          <img
+                  src="biserica desesti.jpg"
+                  alt="Biserica de Lemn Desești"
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+        </div>
+
+        <div class="p-8">
+
+          <h3 class="font-serif text-2xl font-semibold mb-2 text-forest dark:text-white">
+            Biserica de Lemn din Desești
+          </h3>
+
+          <div class="overflow-hidden">
+
+            <p class="text-sm text-charcoal/75 dark:text-beige/75 font-light leading-relaxed
+                opacity-0 max-h-0 translate-y-4
+                transition-all duration-500
+                group-hover:opacity-100
+                group-hover:max-h-40
+                group-hover:translate-y-0">
+
+              Vizitați monumentul istoric inclus în patrimoniul UNESCO din
+              Desești, recunoscut pentru arhitectura sa tradițională din
+              lemn și picturile sale interioare.
+
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Mocănița -->
+      <div class="group bg-white dark:bg-charcoal rounded-2xl overflow-hidden shadow hover:shadow-xl transition-all duration-500 scroll-reveal">
+
+        <div class="h-56 overflow-hidden">
+          <img
+                  src="mocanita.jpeg"
+                  alt="Mocănița Vaser"
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+        </div>
+
+        <div class="p-8">
+
+          <h3 class="font-serif text-2xl font-semibold mb-2 text-forest dark:text-white">
+            Mocănița din Vișeu
+          </h3>
+
+          <div class="overflow-hidden">
+
+            <p class="text-sm text-charcoal/75 dark:text-beige/75 font-light leading-relaxed
+                opacity-0 max-h-0 translate-y-4
+                transition-all duration-500
+                group-hover:opacity-100
+                group-hover:max-h-40
+                group-hover:translate-y-0">
+
+              Planifică o excursie de o zi pentru a trăi experiența
+              faimosului tren cu aburi istoric ce șerpuiește prin
+              sălbăticia neatinsă a Văii Vaserului.
+
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Location Map Element -->
+    <div class="w-full h-96 rounded-2xl overflow-hidden shadow-xl border border-gold/10 relative scroll-reveal">
+      <div class="absolute inset-0 bg-neutral-300 dark:bg-neutral-800 flex flex-col items-center justify-center p-6 text-center">
+        <i data-lucide="map-pin" class="h-12 w-12 text-gold animate-bounce mb-4" aria-hidden="true"></i>
+        <h4 class="font-serif text-2xl font-bold text-forest dark:text-white">Locația Noastră exactă</h4>
+        <p class="text-charcoal/60 dark:text-beige/60 max-w-md mt-2 font-light">Zona Turistică Izvoare nr. 10A, Desești, Maramureș, România.</p>
+        <a href="https://maps.google.com/?q=Pensiunea+Mountain+Pearl+Desesti" target="_blank" rel="noopener noreferrer" class="mt-6 bg-forest text-gold px-6 py-2.5 rounded font-medium tracking-wide uppercase text-xs hover:bg-opacity-95 shadow transition-all duration-300 hover:scale-105">Deschide Google Maps</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================================================================
+     BOOKING — Mountain Pearl Deșești
+     Left 35%: live summary ("Bonul tău direct")
+     Right 65%: compact luxury reservation form
+     ================================================================ -->
+<section id="booking" class="py-24 max-w-7xl mx-auto px-4 lg:px-6">
+  <div class="rounded-2xl shadow-2xl overflow-hidden border border-gold/15"
+       x-data="bookingForm()" x-init="init()">
+
+    <div class="grid grid-cols-1 lg:[grid-template-columns:35%_65%]">
+
+      <!-- ==================== LEFT: SUMMARY (35%) ==================== -->
+      <aside class="bg-forest text-beige p-6 lg:p-8 flex flex-col justify-between order-2 lg:order-1">
+        <div>
+          <span class="text-gold font-medium tracking-widest uppercase text-[11px] block mb-1.5">Bonul tău direct</span>
+          <h3 class="font-serif text-2xl xl:text-3xl font-bold leading-tight mb-4 text-white">Detaliile Sejurului</h3>
+
+          <div class="border-t border-b border-beige/10 py-4 space-y-2.5 text-[13px] font-light">
+            <div class="flex justify-between gap-3">
+              <span class="text-beige/60">Cazare:</span>
+              <span class="font-medium text-white text-right" x-text="selectedRoom() ? selectedRoom().name : 'Nicio cameră selectată'"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-beige/60">Check-in:</span>
+              <span class="font-medium text-white" x-text="fmtDate(checkin)"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-beige/60">Check-out:</span>
+              <span class="font-medium text-white" x-text="fmtDate(checkout)"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-beige/60">Durată:</span>
+              <span class="font-medium text-white" x-text="nights() + (nights() === 1 ? ' noapte' : ' nopți')"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-beige/60">Oaspeți:</span>
+              <span class="font-medium text-white" x-text="guests + (guests === 1 ? ' persoană' : ' persoane')"></span>
+            </div>
+            <div class="flex justify-between" x-show="addBreakfast" x-transition.opacity>
+              <span class="text-beige/60">Mic dejun tradițional:</span>
+              <span class="font-medium text-gold" x-text="'+€' + breakfastCost()"></span>
+            </div>
+            <div class="flex justify-between" x-show="addSpa" x-transition.opacity>
+              <span class="text-beige/60">Spa & Piscină privat:</span>
+              <span class="font-medium text-gold" x-text="'+€' + SPA_FLAT"></span>
+            </div>
+            <div class="flex justify-between pt-2 border-t border-beige/10" x-show="selectedRoom()">
+              <span class="text-beige/60">Preț / noapte:</span>
+              <span class="font-medium text-white" x-text="'€' + (selectedRoom()?.price ?? 0)"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 pt-3">
+          <p class="text-[11px] text-beige/50 uppercase tracking-wide">Total Estimativ Direct</p>
+          <p class="font-serif text-4xl text-gold mt-1 font-bold">€<span x-ref="totalEl" x-text="displayTotal"></span></p>
+          <p class="text-[11px] text-beige/40 mt-1">Cel mai bun preț garantat direct.</p>
+        </div>
+      </aside>
+
+      <!-- ==================== RIGHT: FORM (65%) ==================== -->
+      <form class="bg-charcoal p-6 lg:p-8 order-1 lg:order-2 space-y-4" @submit.prevent="submitForm" novalidate>
+
+        <div class="flex items-baseline justify-between gap-4 flex-wrap">
+          <h2 class="font-serif text-2xl xl:text-3xl font-bold text-white">Rezervă Fără Intermediari</h2>
+          <span class="text-[11px] uppercase tracking-widest text-gold/80">Mountain Pearl Deșești</span>
+        </div>
+
+        <!-- Row 1: dates + guests -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label for="booking-daterange" class="block text-[11px] uppercase tracking-wider font-semibold mb-1.5 text-beige/70">Check-in → Check-out</label>
+            <input id="booking-daterange" type="text" x-ref="daterange" readonly placeholder="Alege perioada sejurului"
+                   class="w-full bg-white/5 border border-beige/10 rounded-lg p-2.5 text-sm text-white cursor-pointer
+                          focus:outline-none focus:ring-2 focus:ring-gold placeholder:text-beige/30 transition-all">
+          </div>
+          <div>
+            <span class="block text-[11px] uppercase tracking-wider font-semibold mb-1.5 text-beige/70">Oaspeți</span>
+            <div class="flex items-center justify-between bg-white/5 border border-beige/10 rounded-lg p-1.5">
+              <button type="button" @click="guests = Math.max(1, guests - 1)"
+                      class="w-8 h-8 rounded-md text-gold text-lg leading-none hover:bg-gold/15 transition-colors"
+                      aria-label="Mai puțini oaspeți">−</button>
+              <span class="text-white text-sm font-semibold tabular-nums" x-text="guests"></span>
+              <button type="button" @click="guests = Math.min(6, guests + 1)"
+                      class="w-8 h-8 rounded-md text-gold text-lg leading-none hover:bg-gold/15 transition-colors"
+                      aria-label="Mai mulți oaspeți">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: room cards, generated from the single rooms object -->
+        <div>
+          <span class="block text-[11px] uppercase tracking-wider font-semibold mb-1.5 text-beige/70">Alege Camera</span>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+            <template x-for="(r, key) in rooms" :key="key">
+              <button type="button" @click="room = key; errors.room = false"
+                      :class="room === key
+                        ? 'border-gold bg-gold/10 ring-1 ring-gold'
+                        : 'border-beige/10 bg-white/5 hover:border-gold/40'"
+                      class="relative text-left border rounded-lg p-3 transition-all duration-200">
+                <span class="absolute top-2 right-2 w-4 h-4 rounded-full border flex items-center justify-center transition-colors"
+                      :class="room === key ? 'border-gold bg-gold' : 'border-beige/30'">
+                  <svg x-show="room === key" class="w-2.5 h-2.5 text-charcoal" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </span>
+                <span class="text-gold block" x-html="r.icon"></span>
+                <span class="block text-[13px] font-semibold text-white mt-1.5 leading-snug pr-4" x-text="r.name"></span>
+                <span class="block text-[11px] text-beige/50 mt-0.5" x-text="'max. ' + r.occupancy + ' pers.'"></span>
+                <span class="block text-[13px] font-bold text-gold mt-1" x-text="'€' + r.price + ' / noapte'"></span>
+              </button>
+            </template>
+          </div>
+          <p x-show="errors.room" x-cloak class="text-[12px] text-red-400 mt-1.5">Te rugăm să alegi o cameră.</p>
+        </div>
+
+        <!-- Row 3: services as premium switches -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+          <label class="flex items-center justify-between gap-3 bg-white/5 border border-beige/10 rounded-lg p-3 cursor-pointer hover:border-gold/40 transition-colors">
+            <span class="text-[13px] text-beige leading-snug">Mic dejun tradițional maramureșean <span class="text-beige/50">(+15€ / zi / pers)</span></span>
+            <input type="checkbox" x-model="addBreakfast" class="sr-only">
+            <span class="mp-switch" aria-hidden="true"></span>
+          </label>
+          <label class="flex items-center justify-between gap-3 bg-white/5 border border-beige/10 rounded-lg p-3 cursor-pointer hover:border-gold/40 transition-colors">
+            <span class="text-[13px] text-beige leading-snug">Slot privat Spa &amp; Piscină, 2 ore <span class="text-beige/50">(+35€)</span></span>
+            <input type="checkbox" x-model="addSpa" class="sr-only">
+            <span class="mp-switch" aria-hidden="true"></span>
+          </label>
+        </div>
+
+        <!-- Row 4: name | phone | email on one row (desktop) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label for="booking-name" class="block text-[11px] uppercase tracking-wider font-semibold mb-1.5 text-beige/70">Nume Complet</label>
+            <input id="booking-name" type="text" x-model.trim="name" autocomplete="name"
+                   :class="errors.fields && !name ? 'border-red-400/60' : 'border-beige/10'"
+                   class="w-full bg-white/5 border rounded-lg p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gold transition-all">
+          </div>
+          <div>
+            <label for="booking-phone" class="block text-[11px] uppercase tracking-wider font-semibold mb-1.5 text-beige/70">Telefon</label>
+            <input id="booking-phone" type="tel" x-model.trim="phone" autocomplete="tel"
+                   :class="errors.fields && !phone ? 'border-red-400/60' : 'border-beige/10'"
+                   class="w-full bg-white/5 border rounded-lg p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gold transition-all">
+          </div>
+          <div>
+            <label for="booking-email" class="block text-[11px] uppercase tracking-wider font-semibold mb-1.5 text-beige/70">Adresă de E-mail</label>
+            <input id="booking-email" type="email" x-model.trim="email" autocomplete="email"
+                   :class="errors.fields && !emailValid() ? 'border-red-400/60' : 'border-beige/10'"
+                   class="w-full bg-white/5 border rounded-lg p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gold transition-all">
+          </div>
+        </div>
+
+        <!-- Row 5: message, 2 rows -->
+        <div>
+          <label for="booking-message" class="block text-[11px] uppercase tracking-wider font-semibold mb-1.5 text-beige/70">Mesaj <span class="normal-case font-normal text-beige/40">(opțional)</span></label>
+          <textarea id="booking-message" rows="2" x-model="message"
+                    class="w-full bg-white/5 border border-beige/10 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gold transition-all resize-none"></textarea>
+        </div>
+
+        <!-- Validation messages -->
+        <p x-show="errors.dates" x-cloak class="text-[12px] text-red-400">Te rugăm să alegi perioada sejurului.</p>
+        <p x-show="errors.fields" x-cloak class="text-[12px] text-red-400">Completează numele, telefonul și o adresă de e-mail validă.</p>
+
+        <!-- Submit: loading + success states -->
+        <button type="submit" :disabled="submitting"
+                class="relative w-full bg-gold text-charcoal font-bold px-8 py-3.5 rounded-lg uppercase tracking-[0.2em] text-sm
+                       transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(200,169,106,.6)] hover:-translate-y-0.5
+                       disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none">
+          <span x-show="!submitting && !sent">Rezervă Acum</span>
+          <span x-show="submitting" x-cloak class="inline-flex items-center gap-2">
+            <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+            </svg>
+            Se trimite...
+          </span>
+          <span x-show="sent && !submitting" x-cloak class="inline-flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            Solicitare Trimisă
+          </span>
+        </button>
+
+        <p x-show="sent" x-transition x-cloak class="text-[13px] text-gold font-medium text-center" role="status">
+          Mulțumim! Vă răspundem în cel mult 24 de ore pentru confirmare.
+        </p>
+      </form>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  function bookingForm() {
+    return {
+      /* ------------------------------------------------------------------
+         SINGLE SOURCE OF TRUTH — edit rooms/prices/occupancy ONLY here.
+         The cards, the summary and the total all read from this object.
+      ------------------------------------------------------------------ */
+      rooms: {
+        'camera-dubla-deluxe': {
+          name: 'Cameră Dublă Deluxe', occupancy: 2, price: 90,
+          icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 18v-6a2 2 0 012-2h14a2 2 0 012 2v6M3 18h18M3 18v2m18-2v2M6 10V7a2 2 0 012-2h8a2 2 0 012 2v3"/></svg>'
+        },
+        'camera-deluxe-twin': {
+          name: 'Cameră Deluxe Twin', occupancy: 2, price: 90,
+          icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2 18v-5a2 2 0 012-2h5v7M13 18v-7h5a2 2 0 012 2v5M2 18h20M2 18v2m20-2v2"/></svg>'
+        },
+        'camera-tripla-lux': {
+          name: 'Cameră triplă de lux', occupancy: 3, price: 110,
+          icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l1.9 3.8L18 7.5l-3 2.9.7 4.1L12 12.6l-3.7 1.9.7-4.1-3-2.9 4.1-.7L12 3zM4 20h16"/></svg>'
+        },
+        'camera-king-balcon': {
+          name: 'Cameră King cu balcon', occupancy: 2, price: 120,
+          icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8l2-4 2.5 2L12 3l2.5 3L17 4l2 4M5 8h14M5 8v12h14V8M9 20v-4h6v4"/></svg>'
+        },
+        'camera-tripla-balcon': {
+          name: 'Cameră triplă cu balcon', occupancy: 3, price: 125,
+          icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 21V10l8-6 8 6v11M4 21h16M9 21v-6h6v6M9 12h.01M15 12h.01"/></svg>'
+        },
+        'camera-deluxe-twin-balcon': {
+          name: 'Cameră Deluxe Twin cu balcon', occupancy: 2, price: 115,
+          icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v3m0 0a7 7 0 017 7v1H5v-1a7 7 0 017-7zM3 17h18M6 17v3m12-3v3"/></svg>'
+        },
+      },
+      BREAKFAST_PER_PERSON_PER_DAY: 15,
+      SPA_FLAT: 35,
+
+      /* ---- state ---- */
+      room: null,
+      guests: 2,
+      checkin: null, checkout: null,
+      addBreakfast: false, addSpa: false,
+      name: '', phone: '', email: '', message: '',
+      submitting: false, sent: false,
+      errors: { room: false, dates: false, fields: false },
+      displayTotal: 0,
+
+      /* ---- setup: Flatpickr range picker + GSAP animated total ---- */
+      init() {
+        flatpickr(this.$refs.daterange, {
+          mode: 'range',
+          minDate: 'today',           /* blocks past dates */
+          dateFormat: 'd.m.Y',
+          locale: 'ro',
+          disableMobile: true,
+          onChange: (dates) => {
+            this.checkin  = dates[0] ?? null;
+            this.checkout = dates[1] ?? null;   /* range mode: checkout can never precede checkin */
+            if (this.checkin && this.checkout) this.errors.dates = false;
+          },
+        });
+
+        this.displayTotal = this.total();
+        this.$watch(
+                () => this.total(),
+                (val) => {
+                  const obj = { n: this.displayTotal };
+                  gsap.to(obj, {
+                    n: val, duration: 0.5, ease: 'power2.out',
+                    onUpdate: () => { this.displayTotal = Math.round(obj.n); },
+                  });
+                  gsap.fromTo(this.$refs.totalEl,
+                          { scale: 1.12 }, { scale: 1, duration: 0.45, ease: 'power2.out' });
+                }
+        );
+      },
+
+      /* ---- derived ---- */
+      selectedRoom() { return this.room ? this.rooms[this.room] : null; },
+      nights() {
+        if (!this.checkin || !this.checkout) return 1;
+        return Math.max(1, Math.round((this.checkout - this.checkin) / 86400000));
+      },
+      fmtDate(d) {
+        return d ? d.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+      },
+      breakfastCost() { return this.BREAKFAST_PER_PERSON_PER_DAY * this.guests * this.nights(); },
+      total() {
+        let t = (this.selectedRoom()?.price ?? 0) * this.nights();
+        if (this.addBreakfast) t += this.breakfastCost();
+        if (this.addSpa) t += this.SPA_FLAT;
+        return t;
+      },
+      emailValid() { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email); },
+
+      /* ---- validation + submit ---- */
+      validate() {
+        this.errors.room   = !this.room;
+        this.errors.dates  = !(this.checkin && this.checkout);
+        this.errors.fields = !this.name || !this.phone || !this.emailValid();
+        return !this.errors.room && !this.errors.dates && !this.errors.fields;
+      },
+      submitForm() {
+        this.sent = false;
+        if (!this.validate()) return;
+        this.submitting = true;
+        /* Replace this setTimeout with a real fetch() to your backend / Formspree */
+        setTimeout(() => {
+          this.submitting = false;
+          this.sent = true;
+        }, 1200);
+      },
+    }
+  }
+</script>
+
+<!-- Contact Section -->
+<section id="contact" class="py-32 bg-white dark:bg-charcoal text-charcoal dark:text-beige transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16">
+
+    <div class="lg:col-span-5 space-y-8 scroll-reveal">
+      <div>
+        <span class="text-gold font-medium tracking-widest uppercase text-sm block">Contact</span>
+        <h2 class="font-serif text-4xl font-bold text-forest dark:text-white mt-2 split-text">Să începem povestea</h2>
+      </div>
+
+      <div class="space-y-6">
+        <div class="flex items-start space-x-4">
+          <i data-lucide="map-pin" class="h-6 w-6 text-gold mt-1 flex-shrink-0" aria-hidden="true"></i>
+          <div>
+            <h4 class="font-semibold text-forest dark:text-white">Locație</h4>
+            <p class="text-sm text-charcoal/75 dark:text-beige/75 leading-relaxed font-light">Zona Turistică Izvoare nr. 10A, Desești, Maramureș, România</p>
+          </div>
+        </div>
+
+        <div class="flex items-start space-x-4">
+          <i data-lucide="phone" class="h-6 w-6 text-gold mt-1 flex-shrink-0" aria-hidden="true"></i>
+          <div>
+            <h4 class="font-semibold text-forest dark:text-white">Telefon direct</h4>
+            <p class="text-sm text-charcoal/75 dark:text-beige/75 leading-relaxed font-light"><a href="tel:+40739866600" class="hover:text-gold transition-colors">+40 739 866 600</a></p>
+          </div>
+        </div>
+
+        <div class="flex items-start space-x-4">
+          <i data-lucide="mail" class="h-6 w-6 text-gold mt-1 flex-shrink-0" aria-hidden="true"></i>
+          <div>
+            <h4 class="font-semibold text-forest dark:text-white">Adresă de e-mail</h4>
+            <a href="mailto:office@mountainpearl.ro" class="text-sm text-gold hover:underline font-light">office@mountainpearl.ro</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message Form -->
+    <div class="lg:col-span-7 bg-beige dark:bg-[#222222] p-8 rounded-2xl shadow border border-gold/5 scroll-reveal">
+      <h4 class="font-serif text-2xl font-bold mb-6 text-forest dark:text-white">Trimite-ne un Mesaj</h4>
+      <form x-data="{ submitting: false, sent: false }"
+            @submit.prevent="submitting = true; setTimeout(() => { submitting = false; sent = true; $el.reset(); }, 1200)"
+            class="space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label for="contact-name" class="block text-xs uppercase tracking-wider font-semibold mb-2 text-charcoal/70 dark:text-beige/70">Nume Complet</label>
+            <input id="contact-name" type="text" required class="w-full bg-white dark:bg-charcoal border-none rounded p-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold text-charcoal dark:text-white transition-all duration-300">
+          </div>
+          <div>
+            <label for="contact-email" class="block text-xs uppercase tracking-wider font-semibold mb-2 text-charcoal/70 dark:text-beige/70">Adresă de E-mail</label>
+            <input id="contact-email" type="email" required class="w-full bg-white dark:bg-charcoal border-none rounded p-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold text-charcoal dark:text-white transition-all duration-300">
+          </div>
+        </div>
+        <div>
+          <label for="contact-message" class="block text-xs uppercase tracking-wider font-semibold mb-2 text-charcoal/70 dark:text-beige/70">Mesaj</label>
+          <textarea id="contact-message" rows="4" required class="w-full bg-white dark:bg-charcoal border-none rounded p-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold text-charcoal dark:text-white transition-all duration-300"></textarea>
+        </div>
+        <button type="submit" :disabled="submitting" :class="submitting ? 'opacity-70 cursor-not-allowed' : ''" class="bg-forest text-gold font-semibold px-8 py-3.5 rounded transition-all duration-300 hover:scale-105 uppercase text-xs w-full sm:w-auto">
+          <span x-show="!submitting">Trimite Mesajul</span>
+          <span x-show="submitting">Se trimite...</span>
+        </button>
+        <p x-show="sent" x-transition class="text-sm text-forest dark:text-gold font-medium" role="status">Mulțumim! Mesajul dumneavoastră a fost trimis.</p>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-forest text-beige py-16 border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
+    <div class="space-y-4">
+      <span class="font-serif text-3xl font-bold text-gold">Mountain Pearl</span>
+      <p class="text-sm text-beige/60 leading-relaxed font-light">Pensiune de tip boutique axată pe relaxare și wellness, situată în zona turistică montană Izvoare, Maramureș.</p>
+    </div>
+    <div class="space-y-4">
+      <h4 class="font-bold uppercase text-xs tracking-wider text-gold">Navigare</h4>
+      <ul class="space-y-2 text-sm text-beige/80 font-light">
+        <li><a href="#about" class="hover:underline">Despre noi</a></li>
+        <li><a href="#rooms" class="hover:underline">Camere</a></li>
+        <li><a href="#spa" class="hover:underline">Wellness Spa</a></li>
+        <li><a href="#gallery" class="hover:underline">Galerie</a></li>
+      </ul>
+    </div>
+    <div class="space-y-4">
+      <h4 class="font-bold uppercase text-xs tracking-wider text-gold">
+        Descoperă Mount Pearl
+      </h4>
+
+      <ul class="space-y-3 text-sm text-beige/80 font-light">
+
+        <li>
+          <a href="#about" class="group flex items-center gap-2 transition-all duration-300 hover:text-gold">
+            <span class="text-gold group-hover:translate-x-1 transition-transform">✦</span>
+            Povestea Pensiunii
+          </a>
+        </li>
+
+        <li>
+          <a href="#rooms" class="group flex items-center gap-2 transition-all duration-300 hover:text-gold">
+            <span class="text-gold group-hover:translate-x-1 transition-transform">✦</span>
+            Camere & Suite
+          </a>
+        </li>
+
+        <li>
+          <a href="#attractions" class="group flex items-center gap-2 transition-all duration-300 hover:text-gold">
+            <span class="text-gold group-hover:translate-x-1 transition-transform">✦</span>
+            Experiențe în Maramureș
+          </a>
+        </li>
+
+        <li>
+          <a href="#booking" class="group flex items-center gap-2 transition-all duration-300 hover:text-gold">
+            <span class="text-gold group-hover:translate-x-1 transition-transform">✦</span>
+            Rezervă Direct
+          </a>
+        </li>
+
+        <li>
+          <a href="#contact" class="group flex items-center gap-2 transition-all duration-300 hover:text-gold">
+            <span class="text-gold group-hover:translate-x-1 transition-transform">✦</span>
+            Contact & Locație
+          </a>
+        </li>
+
+      </ul>
+    </div>
+    <div class="space-y-4">
+      <h4 class="font-bold uppercase text-xs tracking-wider text-gold">Legal</h4>
+      <ul class="space-y-2 text-sm text-beige/80 font-light">
+        <li><a href="#" class="hover:underline">Politică de Confidențialitate</a></li>
+        <li><a href="#" class="hover:underline">Termeni &amp; Condiții</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center text-xs text-beige/50">
+    <p>&copy; 2026 Pensiunea Mountain Pearl. Toate drepturile rezervate.</p>
+    <p class="mt-2 sm:mt-0 font-light">Desești, Maramureș, România.</p>
+  </div>
+</footer>
+
+<script>
+  /* =====================================================================
+  Mountain Pearl — front-end behaviour
+  Organised into small, named functions; every animated section is
+  wrapped in gsap.matchMedia() so prefers-reduced-motion is honoured
+  consistently (not just for the canvases/cursor/tilt as before).
+  ===================================================================== */
+
+  lucide.createIcons();
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------------------------------------------------------------
+  * 1. Split headline text into per-character spans (structural —
+  *    runs once regardless of motion preference; the reduced-motion
+  *    branch below just reveals the spans instantly).
+  * ------------------------------------------------------------- */
+  function splitTextIntoChars() {
+    document.querySelectorAll('.split-text').forEach(el => {
+      const text = el.innerText;
+      el.innerHTML = '';
+      el.classList.add('char-container');
+      [...text].forEach(char => {
+        const span = document.createElement('span');
+        span.className = 'char-span';
+        span.innerHTML = char === ' ' ? '&nbsp;' : char;
+        el.appendChild(span);
+      });
+    });
+  }
+  splitTextIntoChars();
+
+  /* ---------------------------------------------------------------
+  * 2. Custom lag cursor (desktop only). GSAP owns the transform
+  *    entirely (position + centring via xPercent/yPercent) so there
+  *    is no competing CSS transition fighting the per-frame update.
+  * ------------------------------------------------------------- */
+  function initCursor() {
+    const cursor = document.getElementById('custom-cursor');
+    if (!cursor) return;
+
+    let posX = 0, posY = 0;
+    let mouseX = 0, mouseY = 0;
+
+    gsap.ticker.add(() => {
+      posX += (mouseX - posX) * 0.15;
+      posY += (mouseY - posY) * 0.15;
+      gsap.set(cursor, { x: posX, y: posY, xPercent: -50, yPercent: -50 });
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    const hoverTargets = document.querySelectorAll('a, button, select, input, textarea, [role="button"]');
+    hoverTargets.forEach(target => {
+      target.addEventListener('mouseenter', () => {
+        gsap.to(cursor, { scale: 1.5, borderColor: '#C8A96A', duration: 0.3 });
+      });
+      target.addEventListener('mouseleave', () => {
+        gsap.to(cursor, { scale: 1, borderColor: '#C8A96A', duration: 0.3 });
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------------
+  * 3. 3D tilt effect for room cards, driven by gsap.quickTo for
+  *    smooth, hardware-accelerated, 60fps-friendly updates instead
+  *    of writing to el.style on every mousemove.
+  * ------------------------------------------------------------- */
+  function initTilt() {
+    document.querySelectorAll('.tilt-card').forEach(card => {
+      gsap.set(card, { transformPerspective: 1000, transformStyle: 'preserve-3d' });
+      const setRotateX = gsap.quickTo(card, 'rotateX', { duration: 0.4, ease: 'power3.out' });
+      const setRotateY = gsap.quickTo(card, 'rotateY', { duration: 0.4, ease: 'power3.out' });
+      const setScale = gsap.quickTo(card, 'scale', { duration: 0.4, ease: 'power3.out' });
+
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        setRotateX(-(y / rect.height) * 10);
+        setRotateY((x / rect.width) * 10);
+        setScale(1.01);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        setRotateX(0);
+        setRotateY(0);
+        setScale(1);
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------------
+  * 4. Scroll-driven reveals, parallax and zoom — gated behind
+  *    prefers-reduced-motion via gsap.matchMedia().
+  * ------------------------------------------------------------- */
+  const mm = gsap.matchMedia();
+
+  mm.add('(prefers-reduced-motion: no-preference)', () => {
+    // Character-by-character headline reveal, once per element.
+    document.querySelectorAll('.split-text').forEach(el => {
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          el.classList.add('show-chars');
+          gsap.to(el.querySelectorAll('.char-span'), {
+            y: 0,
+            opacity: 1,
+            stagger: 0.02,
+            duration: 1,
+            ease: 'power3.out',
+            overwrite: 'auto'
+          });
+        }
+      });
+    });
+
+    // Hero entrance.
+    gsap.from('.hero-reveal', {
+      y: 40,
+      opacity: 0,
+      duration: 1.2,
+      stagger: 0.15,
+      ease: 'power3.out'
+    });
+
+    // Hero background parallax.
+    gsap.to('#hero-bg', {
+      yPercent: 12,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true
+      }
+    });
+
+    // Section reveals — each trigger self-destructs after firing once.
+    gsap.utils.toArray('.scroll-reveal').forEach(element => {
+      gsap.from(element, {
+        y: 50,
+        opacity: 0,
+        duration: 1.2,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: element,
+          start: 'top 85%',
+          once: true
+        }
+      });
+    });
+
+    // Image zoom-out on scroll.
+    gsap.utils.toArray('.scroll-zoom').forEach(img => {
+      gsap.fromTo(img,
+              { scale: 1.1 },
+              {
+                scale: 1,
+                scrollTrigger: {
+                  trigger: img,
+                  start: 'top 95%',
+                  end: 'bottom 15%',
+                  scrub: 1
+                }
+              }
+      );
+    });
+
+    initCursor();
+    initTilt();
+  });
+
+  mm.add('(prefers-reduced-motion: reduce)', () => {
+    // Skip straight to the final, fully visible state.
+    document.querySelectorAll('.split-text').forEach(el => el.classList.add('show-chars'));
+    gsap.set('.char-span, .hero-reveal, .scroll-reveal', { opacity: 1, y: 0, x: 0, scale: 1 });
+  });
+
+  /* ---------------------------------------------------------------
+  * 5. Active-section nav highlighting via IntersectionObserver.
+  *    Independent of the motion preference (it only toggles a
+  *    class, it doesn't animate).
+  * ------------------------------------------------------------- */
+  function initActiveNavHighlight() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+    if (!sections.length || !navLinks.length) return;
+
+    const setActive = (id) => {
+      navLinks.forEach(link => {
+        link.classList.toggle('active-link', link.getAttribute('href') === `#${id}`);
+      });
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) setActive(entry.target.id);
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+
+    sections.forEach(section => observer.observe(section));
+  }
+  initActiveNavHighlight();
+
+  /* ---------------------------------------------------------------
+  * 6. Lightweight canvas particle systems (golden dust in the hero,
+  *    cool vapour in the spa section). Self-contained; respects
+  *    prefers-reduced-motion by simply never starting the rAF loop.
+  * ------------------------------------------------------------- */
+  function createParticleSystem(canvasId, color, maxParticles) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    const resize = () => {
+      canvas.width = canvas.parentElement.offsetWidth;
+      canvas.height = canvas.parentElement.offsetHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2.5 + 0.5;
+        this.speedX = Math.random() * 0.4 - 0.2;
+        this.speedY = Math.random() * -0.4 - 0.1;
+        this.alpha = Math.random() * 0.5 + 0.1;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.y < 0) {
+          this.y = canvas.height;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = color;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < maxParticles; i++) {
+      particles.push(new Particle());
+    }
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    };
+
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      animate();
+    }
+  }
+
+  /* ---------------------------------------------------------------
+  * 7. Boot everything that needs the page fully loaded (images,
+  *    fonts) and refresh ScrollTrigger afterwards so any layout
+  *    shift from late-loading assets doesn't leave stale trigger
+  *    positions behind.
+  * ------------------------------------------------------------- */
+  window.addEventListener('load', () => {
+    createParticleSystem('hero-canvas', '#C8A96A', 40);
+    createParticleSystem('spa-canvas', '#A5F3FC', 25);
+    ScrollTrigger.refresh();
+  });
+</script>
+</body>
+</html>
