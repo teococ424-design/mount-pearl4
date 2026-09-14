@@ -100,6 +100,15 @@ value initialised in the x-data above. -->
 
   <style>
 
+    /* Prevent any horizontal scroll/jitter while scrolling vertically on
+    mobile. Several absolutely-positioned cinematic/decorative elements
+    (mist, fog, particles, ridges) can be wider/taller than the viewport;
+    without this the page content visibly "slides" left/right on scroll. */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+
     /* Premium custom glass effect */
     .glass-nav {
       background-color: rgba(35, 64, 50, 0.9);
@@ -195,6 +204,30 @@ value initialised in the x-data above. -->
     /* Alpine: hide x-cloak elements until Alpine initialises */
     [x-cloak] { display: none !important; }
 
+    /* Mobile menu (hamburger) trigger — same visual treatment as the
+    dark-mode toggle so the icon is always crisp, centred and never
+    overlaps neighbouring header elements. */
+    #mobile-menu-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(200,169,106,.25);
+      background-color: rgba(255,255,255,.06);
+      transition: border-color .3s, box-shadow .3s, background-color .3s;
+    }
+    #mobile-menu-btn:hover {
+      border-color: #C8A96A;
+      box-shadow: 0 0 18px rgba(200,169,106,.25);
+    }
+    #mobile-menu-btn svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      pointer-events: none;
+    }
+
     /* ============ Flatpickr — Mountain Pearl luxury dark/gold theme ============ */
     .flatpickr-calendar{
       background:#1A1A1A; border:1px solid rgba(200,169,106,.25);
@@ -270,7 +303,6 @@ value initialised in the x-data above. -->
       <a href="#about" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Despre noi</a>
       <a href="#rooms" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Camere</a>
       <a href="#spa" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Wellness Spa</a>
-      <a href="#amenities" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Facilități</a>
       <a href="#gallery" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Galerie</a>
       <a href="#attractions" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Atracții</a>
       <a href="#contact" class="nav-link hover-underline-gold hover:text-gold transition-colors duration-300">Contact</a>
@@ -312,9 +344,15 @@ value initialised in the x-data above. -->
         <span class="relative z-10">Rezervă</span>
       </a>
 
-      <!-- Mobile Menu Button -->
-      <button class="lg:hidden p-2" @click="mobileMenuOpen = true" :aria-expanded="mobileMenuOpen" aria-controls="mobile-menu" aria-label="Deschide meniul de navigare">
-        <i data-lucide="menu" class="h-6 w-6" aria-hidden="true"></i>
+      <!-- Mobile Menu Button (hamburger, opens the full-screen drawer below) -->
+      <button id="mobile-menu-btn"
+              type="button"
+              class="lg:hidden"
+              @click="mobileMenuOpen = true"
+              :aria-expanded="mobileMenuOpen"
+              aria-controls="mobile-menu"
+              aria-label="Deschide meniul de navigare">
+        <i data-lucide="menu" class="text-white" aria-hidden="true"></i>
       </button>
     </div>
   </div>
@@ -333,7 +371,6 @@ value initialised in the x-data above. -->
     <a href="#about" @click="mobileMenuOpen = false" class="hover:text-gold">Despre noi</a>
     <a href="#rooms" @click="mobileMenuOpen = false" class="hover:text-gold">Camere</a>
     <a href="#spa" @click="mobileMenuOpen = false" class="hover:text-gold">Wellness Spa</a>
-    <a href="#amenities" @click="mobileMenuOpen = false" class="hover:text-gold">Facilități</a>
     <a href="#gallery" @click="mobileMenuOpen = false" class="hover:text-gold">Galerie</a>
     <a href="#attractions" @click="mobileMenuOpen = false" class="hover:text-gold">Atracții</a>
     <a href="#contact" @click="mobileMenuOpen = false" class="hover:text-gold">Contact</a>
@@ -451,52 +488,8 @@ value initialised in the x-data above. -->
       <p class="text-lg leading-relaxed text-charcoal/80 dark:text-beige/80 font-light">
         Pensiunea Mountain Pearl este amplasată în zona turistică Izvoare din comuna Desești. Proprietatea noastră îmbină perfect elementele moderne cu ospitalitatea caldă maramureșeană pentru a vă oferi o experiență montană cu totul deosebită.
       </p>
-      <p class="text-charcoal/70 dark:text-beige/70 leading-relaxed font-light">
-        Relaxați-vă pe terasa noastră exterioară spațioasă cu vedere directă spre culmile muntoase, explorați cărările pitorești din jur sau bucurați-vă de piscina noastră interioară. Fie că plănuiți o escapadă romantică în doi sau o vacanță activă cu familia, vă punem la dispoziție servicii de calitate la standarde premium.
-      </p>
-
-      <!-- Key Highlights -->
-      <div class="grid grid-cols-2 gap-6 pt-4">
-        <div class="flex items-start space-x-3 group">
-          <div class="p-2.5 bg-forest/5 dark:bg-white/5 rounded-lg group-hover:scale-110 transition-all duration-300">
-            <i data-lucide="compass" class="h-6 w-6 text-gold" aria-hidden="true"></i>
-          </div>
-          <div>
-            <h4 class="font-semibold text-forest dark:text-white">Aventuri Active</h4>
-            <p class="text-sm text-charcoal/60 dark:text-beige/60 font-light">Pârtie de schi (50m) și trasee spre Vârful Igniș</p>
-          </div>
-        </div>
-        <div class="flex items-start space-x-3 group">
-          <div class="p-2.5 bg-forest/5 dark:bg-white/5 rounded-lg group-hover:scale-110 transition-all duration-300">
-            <i data-lucide="heart" class="h-6 w-6 text-gold" aria-hidden="true"></i>
-          </div>
-          <div>
-            <h4 class="font-semibold text-forest dark:text-white">Relaxare Deplină</h4>
-            <p class="text-sm text-charcoal/60 dark:text-beige/60 font-light">Piscină interioară încălzită, jacuzzi și saune</p>
-          </div>
-        </div>
-      </div>
     </div>
 
-  </div>
-</section>
-
-<!-- Hosts Signature Letter Section -->
-<section class="py-24 bg-forest text-beige relative overflow-hidden">
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(35,64,50,0.5),transparent_70%)] pointer-events-none" aria-hidden="true"></div>
-  <div class="max-w-4xl mx-auto px-6 text-center relative z-10 scroll-reveal">
-    <span class="text-gold font-medium tracking-widest uppercase text-xs block mb-4">Gânduri de la gazde</span>
-    <i data-lucide="quote" class="h-8 w-8 text-gold/30 mx-auto mb-6" aria-hidden="true"></i>
-    <h3 class="font-serif text-3xl sm:text-4xl italic leading-relaxed text-white mb-6">
-      „Am construit Mountain Pearl nu doar ca pe un loc de cazare, ci ca pe un cămin deschis în inima pădurilor. Ne-am dorit un loc în care mirosul lemnului ars în șemineu, clipocitul apei calde și liniștea serii să vă reconecteze cu ceea ce contează cu adevărat."
-    </h3>
-    <p class="text-sm text-beige/70 max-w-xl mx-auto mb-8 font-light">
-      Vă așteptăm cu drag să ne treceți pragul, să povestim pe terasă la un pahar de afinată de casă și să vă bucurați de tot ce are mai frumos de oferit Maramureșul nostru.
-    </p>
-    <div>
-      <p class="text-gold tracking-wide text-sm uppercase">Cu dragoste și respect,</p>
-      <p class="signature-font text-5xl text-gold mt-2">Tudor și Maria</p>
-    </div>
   </div>
 </section>
 
