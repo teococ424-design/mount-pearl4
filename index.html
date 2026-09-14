@@ -116,6 +116,26 @@ value initialised in the x-data above. -->
       -webkit-backdrop-filter: blur(16px);
     }
 
+    /* The fixed header repaints on every scroll frame; promoting it to
+    its own GPU layer avoids the "ghost/duplicate header" artifact some
+    iOS in-app browsers (e.g. WhatsApp) show when a blurred, fixed
+    element is scrolled quickly underneath animated content. */
+    header {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      will-change: transform;
+    }
+
+    /* Heavy backdrop blur is one of the most expensive operations for
+    mobile WebKit — cutting it down keeps scrolling smooth on phones
+    without a visible difference in the design. */
+    @media (max-width: 768px) {
+      .glass-nav {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+    }
+
     /* Calligraphy script styling */
     .signature-font {
       font-family: 'Pinyon Script', cursive;
@@ -1852,6 +1872,7 @@ value initialised in the x-data above. -->
 
   lucide.createIcons();
   gsap.registerPlugin(ScrollTrigger);
+  ScrollTrigger.config({ ignoreMobileResize: true });
 
   /* ---------------------------------------------------------------
   * 1. Split headline text into per-character spans (structural —
@@ -1943,20 +1964,21 @@ value initialised in the x-data above. -->
   const mm = gsap.matchMedia();
 
   mm.add('(prefers-reduced-motion: no-preference)', () => {
-    // Character-by-character headline reveal, once per element.
+    // Character-by-character headline reveal, once per element — kept short
+    // and with a light stagger so it never lags behind a fast scroll.
     document.querySelectorAll('.split-text').forEach(el => {
       ScrollTrigger.create({
         trigger: el,
-        start: 'top 85%',
+        start: 'top 90%',
         once: true,
         onEnter: () => {
           el.classList.add('show-chars');
           gsap.to(el.querySelectorAll('.char-span'), {
             y: 0,
             opacity: 1,
-            stagger: 0.02,
-            duration: 1,
-            ease: 'power3.out',
+            stagger: 0.006,
+            duration: 0.35,
+            ease: 'power2.out',
             overwrite: 'auto'
           });
         }
@@ -1965,11 +1987,11 @@ value initialised in the x-data above. -->
 
     // Hero entrance.
     gsap.from('.hero-reveal', {
-      y: 40,
+      y: 24,
       opacity: 0,
-      duration: 1.2,
-      stagger: 0.15,
-      ease: 'power3.out'
+      duration: 0.6,
+      stagger: 0.08,
+      ease: 'power2.out'
     });
 
     // Hero background parallax.
@@ -1985,31 +2007,36 @@ value initialised in the x-data above. -->
     });
 
     // Section reveals — each trigger self-destructs after firing once.
+    // Short duration + small offset keeps content from lagging visibly
+    // behind the scroll gesture on mobile.
     gsap.utils.toArray('.scroll-reveal').forEach(element => {
       gsap.from(element, {
-        y: 50,
+        y: 18,
         opacity: 0,
-        duration: 1.2,
+        duration: 0.45,
         ease: 'power2.out',
         scrollTrigger: {
           trigger: element,
-          start: 'top 85%',
+          start: 'top 90%',
           once: true
         }
       });
     });
 
-    // Image zoom-out on scroll.
+    // Image zoom-out — plays once when the image enters view instead of
+    // being tied to every scroll frame (scrub), which is what was causing
+    // the sluggish, glitchy feel while scrolling on phones.
     gsap.utils.toArray('.scroll-zoom').forEach(img => {
       gsap.fromTo(img,
-              { scale: 1.1 },
+              { scale: 1.08 },
               {
                 scale: 1,
+                duration: 0.6,
+                ease: 'power2.out',
                 scrollTrigger: {
                   trigger: img,
                   start: 'top 95%',
-                  end: 'bottom 15%',
-                  scrub: 1
+                  once: true
                 }
               }
       );
@@ -2103,18 +2130,40 @@ value initialised in the x-data above. -->
       particles.push(new Particle());
     }
 
+    let rafId = null;
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach(p => {
         p.update();
         p.draw();
       });
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
+    };
+    const stop = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
     };
 
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      animate();
-    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Only run the rAF loop while the canvas is actually on screen —
+    // this is what keeps scrolling smooth: two canvases redrawing
+    // continuously in the background (even far off-screen) compete
+    // with the browser's scroll compositing and were the main cause
+    // of the stutter/ghosting while scrolling on phones.
+    const visibilityObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (rafId === null) animate();
+        } else {
+          stop();
+        }
+      });
+    }, { threshold: 0 });
+
+    visibilityObserver.observe(canvas);
   }
 
   /* ---------------------------------------------------------------
