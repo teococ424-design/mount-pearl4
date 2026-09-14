@@ -376,27 +376,33 @@ value initialised in the x-data above. -->
       </button>
     </div>
   </div>
-
-  <!-- Mobile Drawer Menu -->
-  <div id="mobile-menu"
-       x-show="mobileMenuOpen"
-       x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-       x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-       class="fixed inset-0 bg-forest/95 backdrop-blur-md z-50 flex flex-col justify-center items-center space-y-8 text-2xl text-white font-serif"
-       style="display: none;"
-       role="dialog" aria-modal="true" aria-label="Meniu de navigare">
-    <button x-ref="mobileCloseBtn" @click="mobileMenuOpen = false" class="absolute top-6 right-6 p-2 text-gold" aria-label="Închide meniul">
-      <i data-lucide="x" class="h-8 w-8" aria-hidden="true"></i>
-    </button>
-    <a href="#about" @click="mobileMenuOpen = false" class="hover:text-gold">Despre noi</a>
-    <a href="#rooms" @click="mobileMenuOpen = false" class="hover:text-gold">Camere</a>
-    <a href="#spa" @click="mobileMenuOpen = false" class="hover:text-gold">Wellness Spa</a>
-    <a href="#gallery" @click="mobileMenuOpen = false" class="hover:text-gold">Galerie</a>
-    <a href="#attractions" @click="mobileMenuOpen = false" class="hover:text-gold">Atracții</a>
-    <a href="#contact" @click="mobileMenuOpen = false" class="hover:text-gold">Contact</a>
-    <a href="#booking" @click="mobileMenuOpen = false" class="bg-gold text-forest font-bold px-8 py-3 rounded tracking-wider uppercase">Rezervă Acum</a>
-  </div>
 </header>
+
+<!-- Mobile Drawer Menu — kept as a sibling of <header>, NOT a descendant.
+     Header has `transform`/`will-change:transform` for GPU compositing,
+     and any such ancestor becomes the containing block for its
+     position:fixed children (CSS spec), which would shrink this overlay
+     down to the header's own small box instead of covering the full
+     screen. Living outside <header> keeps it truly viewport-fixed. -->
+<div id="mobile-menu"
+     x-show="mobileMenuOpen"
+     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+     class="fixed inset-0 bg-forest/95 backdrop-blur-md z-[60] flex flex-col justify-center items-center space-y-8 text-2xl text-white font-serif"
+     style="display: none;"
+     role="dialog" aria-modal="true" aria-label="Meniu de navigare">
+  <button x-ref="mobileCloseBtn" @click="mobileMenuOpen = false" class="absolute top-6 right-6 p-2 text-gold" aria-label="Închide meniul">
+    <i data-lucide="x" class="h-8 w-8" aria-hidden="true"></i>
+  </button>
+  <a href="#about" @click="mobileMenuOpen = false" class="hover:text-gold">Despre noi</a>
+  <a href="#rooms" @click="mobileMenuOpen = false" class="hover:text-gold">Camere</a>
+  <a href="#spa" @click="mobileMenuOpen = false" class="hover:text-gold">Wellness Spa</a>
+  <a href="#gallery" @click="mobileMenuOpen = false" class="hover:text-gold">Galerie</a>
+  <a href="#attractions" @click="mobileMenuOpen = false" class="hover:text-gold">Atracții</a>
+  <a href="#contact" @click="mobileMenuOpen = false" class="hover:text-gold">Contact</a>
+  <a href="#booking" @click="mobileMenuOpen = false" class="bg-gold text-forest font-bold px-8 py-3 rounded tracking-wider uppercase">Rezervă Acum</a>
+</div>
+
 
 <!-- Hero Section -->
 <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -710,7 +716,7 @@ value initialised in the x-data above. -->
                 Wellness & Spa
             </span>
 
-      <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-semibold text-forest dark:text-white leading-tight text-center split-text">
+      <h2 class="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-forest dark:text-white leading-tight text-center split-text whitespace-nowrap">
         Oaza Noastră de Relaxare
       </h2>
 
